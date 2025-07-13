@@ -1,11 +1,47 @@
+/**
+ * Global Styles for LawBotics Application
+ * 
+ * This file contains all global CSS styles, design tokens, and component-specific
+ * styles for the LawBotics legal document analysis platform.
+ * 
+ * Structure:
+ * 1. Framework Imports
+ * 2. Design System & Theme Variables  
+ * 3. Base Styles & Reset
+ * 4. Utility Classes
+ * 5. Component-Specific Styles
+ * 
+ * @fileoverview Global stylesheet with design system tokens and utilities
+ */
+
+/* ==========================================================================
+   FRAMEWORK IMPORTS
+   ========================================================================== */
+
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* ==========================================================================
+   DESIGN SYSTEM CONFIGURATION
+   ========================================================================== */
+
+/**
+ * Custom variant for dark mode styling
+ * Enables dark: prefix for conditional dark mode styles
+ */
 @custom-variant dark (&:is(.dark *));
 
+/**
+ * Design System Theme Configuration
+ * 
+ * Defines the core design tokens used throughout the application.
+ * These variables are mapped to CSS custom properties for consistent theming.
+ */
 @theme inline {
+  /* Typography */
   --font-sans: Arial, Helvetica, sans-serif;
 
+  /* Core Theme Colors */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -26,6 +62,7 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
+  /* Sidebar Theme Colors */
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -37,98 +74,134 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
+  /* Chart & Data Visualization Colors */
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
 
+  /* Border Radius Scale */
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+/* ==========================================================================
+   LIGHT THEME VARIABLES
+   ========================================================================== */
+
+/**
+ * Light Theme Color Definitions
+ * 
+ * Base color palette for light mode using OKLCH color space for better
+ * perceptual uniformity and accessibility compliance.
+ */
 :root {
   --radius: 0.5rem;
 
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.573 0.2 296.5);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.145 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.145 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  /* Core Colors - Light Theme */
+  --background: oklch(1 0 0); /* Pure white */
+  --foreground: oklch(0.145 0 0); /* Near black */
+  --card: oklch(1 0 0); /* White cards */
+  --card-foreground: oklch(0.145 0 0); /* Dark text on cards */
+  --popover: oklch(1 0 0); /* White popovers */
+  --popover-foreground: oklch(0.145 0 0); /* Dark text in popovers */
+  --primary: oklch(0.573 0.2 296.5); /* Purple primary */
+  --primary-foreground: oklch(0.985 0 0); /* Light text on primary */
+  --secondary: oklch(0.97 0 0); /* Light gray secondary */
+  --secondary-foreground: oklch(0.145 0 0); /* Dark text on secondary */
+  --muted: oklch(0.97 0 0); /* Muted background */
+  --muted-foreground: oklch(0.556 0 0); /* Muted text */
+  --accent: oklch(0.97 0 0); /* Accent background */
+  --accent-foreground: oklch(0.145 0 0); /* Text on accent */
+  --destructive: oklch(0.577 0.245 27.325); /* Red for errors */
+  --destructive-foreground: oklch(0.985 0 0); /* Light text on red */
+  --border: oklch(0.922 0 0); /* Border color */
+  --input: oklch(0.922 0 0); /* Input border */
+  --ring: oklch(0.708 0 0); /* Focus ring */
 
-  --sidebar: oklch(1 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.573 0.2 296.5);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.145 0 0);
-  --sidebar-muted: oklch(0.97 0 0);
-  --sidebar-muted-foreground: oklch(0.556 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* Sidebar Colors - Light Theme */
+  --sidebar: oklch(1 0 0); /* White sidebar */
+  --sidebar-foreground: oklch(0.145 0 0); /* Dark sidebar text */
+  --sidebar-primary: oklch(0.573 0.2 296.5); /* Purple in sidebar */
+  --sidebar-primary-foreground: oklch(0.985 0 0); /* Light text */
+  --sidebar-accent: oklch(0.97 0 0); /* Sidebar accent */
+  --sidebar-accent-foreground: oklch(0.145 0 0); /* Text on accent */
+  --sidebar-muted: oklch(0.97 0 0); /* Muted sidebar elements */
+  --sidebar-muted-foreground: oklch(0.556 0 0); /* Muted sidebar text */
+  --sidebar-border: oklch(0.922 0 0); /* Sidebar borders */
+  --sidebar-ring: oklch(0.708 0 0); /* Sidebar focus rings */
 
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
+  /* Chart Colors - Light Theme */
+  --chart-1: oklch(0.646 0.222 41.116); /* Orange */
+  --chart-2: oklch(0.6 0.118 184.704); /* Blue */
+  --chart-3: oklch(0.398 0.07 227.392); /* Dark blue */
+  --chart-4: oklch(0.828 0.189 84.429); /* Green */
+  --chart-5: oklch(0.769 0.188 70.08); /* Yellow-green */
 }
 
+/* ==========================================================================
+   DARK THEME VARIABLES
+   ========================================================================== */
+
+/**
+ * Dark Theme Color Definitions
+ * 
+ * Optimized dark color palette with proper contrast ratios and reduced
+ * eye strain for extended usage periods.
+ */
 .dark {
-  --background: oklch(0.15 0.03 260);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.18 0.02 250 / 90%);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.18 0.02 250 / 85%);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.65 0.22 296);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.3 0.05 20);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.3 0.03 20);
-  --muted-foreground: oklch(0.7 0.02 260);
-  --accent: oklch(0.65 0.15 180);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.3 0.05 260 / 40%);
-  --input: oklch(0.25 0.05 260 / 50%);
-  --ring: oklch(0.556 0 0);
+  /* Core Colors - Dark Theme */
+  --background: oklch(0.15 0.03 260); /* Dark purple-tinted background */
+  --foreground: oklch(0.985 0 0); /* Near white text */
+  --card: oklch(0.18 0.02 250 / 90%); /* Semi-transparent cards */
+  --card-foreground: oklch(0.985 0 0); /* Light text on cards */
+  --popover: oklch(0.18 0.02 250 / 85%); /* Semi-transparent popovers */
+  --popover-foreground: oklch(0.985 0 0); /* Light text in popovers */
+  --primary: oklch(0.65 0.22 296); /* Brighter purple primary */
+  --primary-foreground: oklch(0.205 0 0); /* Dark text on primary */
+  --secondary: oklch(0.3 0.05 20); /* Dark warm secondary */
+  --secondary-foreground: oklch(0.985 0 0); /* Light text on secondary */
+  --muted: oklch(0.3 0.03 20); /* Muted dark background */
+  --muted-foreground: oklch(0.7 0.02 260); /* Lighter muted text */
+  --accent: oklch(0.65 0.15 180); /* Cyan accent */
+  --accent-foreground: oklch(0.985 0 0); /* Light text on accent */
+  --destructive: oklch(0.704 0.191 22.216); /* Brighter red for visibility */
+  --destructive-foreground: oklch(0.985 0 0); /* Light text on red */
+  --border: oklch(0.3 0.05 260 / 40%); /* Subtle borders */
+  --input: oklch(0.25 0.05 260 / 50%); /* Input backgrounds */
+  --ring: oklch(0.556 0 0); /* Focus rings */
 
-  --sidebar: oklch(0.18 0.02 250);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.65 0.22 296);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.65 0.15 180);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-muted: oklch(0.25 0.03 260);
-  --sidebar-muted-foreground: oklch(0.7 0.02 260);
-  --sidebar-border: oklch(0.3 0.05 260 / 40%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* Sidebar Colors - Dark Theme */
+  --sidebar: oklch(0.18 0.02 250); /* Dark sidebar */
+  --sidebar-foreground: oklch(0.985 0 0); /* Light sidebar text */
+  --sidebar-primary: oklch(0.65 0.22 296); /* Bright purple */
+  --sidebar-primary-foreground: oklch(0.985 0 0); /* Light text */
+  --sidebar-accent: oklch(0.65 0.15 180); /* Cyan accent */
+  --sidebar-accent-foreground: oklch(0.985 0 0); /* Light text on accent */
+  --sidebar-muted: oklch(0.25 0.03 260); /* Muted sidebar elements */
+  --sidebar-muted-foreground: oklch(0.7 0.02 260); /* Muted sidebar text */
+  --sidebar-border: oklch(0.3 0.05 260 / 40%); /* Subtle sidebar borders */
+  --sidebar-ring: oklch(0.556 0 0); /* Sidebar focus rings */
 
-  --chart-1: oklch(0.65 0.22 296);
-  --chart-2: oklch(0.65 0.15 180);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
+  /* Chart Colors - Dark Theme */
+  --chart-1: oklch(0.65 0.22 296); /* Purple */
+  --chart-2: oklch(0.65 0.15 180); /* Cyan */
+  --chart-3: oklch(0.769 0.188 70.08); /* Yellow-green */
+  --chart-4: oklch(0.627 0.265 303.9); /* Pink */
+  --chart-5: oklch(0.645 0.246 16.439); /* Orange */
 }
 
+/* ==========================================================================
+   BASE STYLES & RESET
+   ========================================================================== */
+
+/**
+ * Base element styles and normalization
+ * Provides consistent foundation across browsers
+ */
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -140,19 +213,40 @@
   }
 }
 
+/* ==========================================================================
+   UTILITY CLASSES
+   ========================================================================== */
+
+/**
+ * Custom utility classes for common layout patterns
+ */
 @layer components {
   .container {
     @apply mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl;
   }
 }
 
+/**
+ * Text and layout utilities
+ */
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
 }
 
-/* Tiptap Rich Text Editor Styles */
+/* ==========================================================================
+   RICH TEXT EDITOR STYLES
+   ========================================================================== */
+
+/**
+ * Tiptap Rich Text Editor Styles
+ * 
+ * Custom styles for rich text content to ensure proper list rendering,
+ * typography, and visual hierarchy in legal document editing.
+ */
+
+/* List Styles - Force proper list rendering */
 .tiptap-editor ul,
 .rich-text-editor-content ul {
   list-style-type: disc !important;
@@ -185,6 +279,7 @@
   display: inline !important;
 }
 
+/* Blockquote Styles - Legal document citations */
 .tiptap-editor blockquote,
 .rich-text-editor-content blockquote {
   border-left: 4px solid #cbd5e1 !important;
@@ -197,6 +292,7 @@
   border-radius: 0.375rem !important;
 }
 
+/* Typography Styles */
 .tiptap-editor p,
 .rich-text-editor-content p {
   margin-bottom: 0.5rem !important;
@@ -212,7 +308,14 @@
   font-style: italic !important;
 }
 
+/**
+ * Tiptap Component-Level Styles
+ * 
+ * Tailwind-based styles for consistent rich text appearance
+ * throughout the application interface.
+ */
 @layer components {
+  /* List Styles with Tailwind Classes */
   .tiptap-editor .tiptap-bullet-list {
     @apply list-disc list-inside ml-4 space-y-1;
   }
@@ -225,10 +328,12 @@
     @apply mb-1;
   }
 
+  /* Blockquote Styles for Legal Citations */
   .tiptap-editor .tiptap-blockquote {
     @apply border-l-4 border-slate-300 pl-4 italic text-slate-600 my-4;
   }
 
+  /* Standard Element Styles */
   .tiptap-editor ul {
     @apply list-disc list-inside ml-4 space-y-1;
   }
@@ -249,6 +354,7 @@
     @apply mb-2;
   }
 
+  /* Text Formatting */
   .tiptap-editor strong {
     @apply font-semibold;
   }
