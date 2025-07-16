@@ -12,7 +12,15 @@ export { useThemeToggle } from "./use-theme-toggle";
 export { useScrollDetection } from "./use-scroll-detection";
 export { useAnalysis } from "./use-analysis";
 export { useChartAnalytics } from "./use-chart-analytics";
-
+export { useDocumentChat } from "./use-document-chat";
+export { useUnifiedDocuments } from "./use-unified-document";
+export { useDocumentAnalysis } from "./use-document-analysis";
+export { useDocumentTable } from "./use-document-table";
+export { usePagination, calculateTotalPages } from "./use-pagination";
+export { useDashboardAnalytics } from "./use-dashboard-analytics";
+export { useFormattedUser } from "./use-formatted-user";
+export { useAnalysisFetch } from "./use-analysis-fetch";
+export { useChat } from "./use-chat";
 /**
  * Re-export types for better developer experience
  */
