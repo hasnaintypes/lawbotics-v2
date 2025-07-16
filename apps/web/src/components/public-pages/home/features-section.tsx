@@ -1,8 +1,27 @@
-import { AlertCircle, MessageSquare, Search, FileText, BarChart3 } from "lucide-react"
-import { features } from "@/constants/features_section"
+import {
+  AlertCircle,
+  MessageSquare,
+  Search,
+  FileText,
+  BarChart3,
+} from "lucide-react";
+import { features } from "@/constants/features_section";
 
-
-
+/**
+ * Icon mapping for feature items
+ *
+ * Maps string identifiers to their corresponding Lucide React icons
+ * for use in the features grid display.
+ *
+ * @param {string} iconName - The identifier for the desired icon
+ * @param {string} className - CSS classes to apply to the icon component
+ * @returns {JSX.Element} The corresponding icon component with applied styling
+ *
+ * @example
+ * ```tsx
+ * const icon = getFeatureIcon("risk-analysis", "h-6 w-6 text-primary")
+ * ```
+ */
 function getFeatureIcon(iconName: string, className: string) {
   const icons = {
     "risk-analysis": <AlertCircle className={className} />,
@@ -10,19 +29,57 @@ function getFeatureIcon(iconName: string, className: string) {
     search: <Search className={className} />,
     drafter: <FileText className={className} />,
     analytics: <BarChart3 className={className} />,
-  }
+  };
 
-  return icons[iconName as keyof typeof icons] || <AlertCircle className={className} />
+  return (
+    icons[iconName as keyof typeof icons] || (
+      <AlertCircle className={className} />
+    )
+  );
 }
 
+/**
+ * Features section component showcasing LawBotics AI tools
+ *
+ * Displays a grid of feature cards, each highlighting a specific AI-powered
+ * legal tool with an icon, title, description, and learn more link.
+ * Features are loaded from a constants file for easy management.
+ *
+ * @component
+ * @returns {JSX.Element} The rendered features section with header, description,
+ *   and grid of feature cards
+ *
+ * @example
+ * ```tsx
+ * import { Features } from "@/components/public/home"
+ *
+ * export default function HomePage() {
+ *   return (
+ *     <main>
+ *       <Hero />
+ *       <Features />
+ *     </main>
+ *   )
+ * }
+ * ```
+ *
+ * @example
+ * // Used in a marketing page layout
+ * <section className="features">
+ *   <Features />
+ * </section>
+ */
 export default function Features() {
   return (
     <section className="py-20 bg-muted/30">
       <div className="container">
         <div className="mx-auto max-w-3xl text-center mb-16">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">Powerful Legal AI Tools</h2>
+          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">
+            Powerful Legal AI Tools
+          </h2>
           <p className="text-lg text-muted-foreground">
-            Our suite of AI-powered tools helps legal professionals work smarter and faster.
+            Our suite of AI-powered tools helps legal professionals work smarter
+            and faster.
           </p>
         </div>
 
@@ -37,7 +94,9 @@ export default function Features() {
               </div>
 
               <h3 className="mb-3 text-xl font-semibold">{feature.title}</h3>
-              <p className="mb-4 text-muted-foreground">{feature.description}</p>
+              <p className="mb-4 text-muted-foreground">
+                {feature.description}
+              </p>
 
               <div className="flex items-center text-sm text-primary">
                 <span>Learn more</span>
@@ -62,8 +121,5 @@ export default function Features() {
         </div>
       </div>
     </section>
-  )
+  );
 }
-
-
-

@@ -1,14 +1,50 @@
-import { testimonials } from "@/constants/testimonials_section"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { testimonials } from "@/constants/testimonials-section";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
+/**
+ * Testimonials section component displaying client success stories
+ *
+ * Showcases customer testimonials with alternating layout design,
+ * featuring client avatars, quotes, and detailed benefits.
+ * Each testimonial includes personal information, a quote,
+ * headline, and a list of specific benefits achieved.
+ *
+ * @component
+ * @returns {JSX.Element} The rendered testimonials section with header,
+ *   description, and grid of testimonial cards in alternating layout
+ *
+ * @example
+ * ```tsx
+ * import { Testimonials } from "@/components/public/home"
+ *
+ * export default function HomePage() {
+ *   return (
+ *     <main>
+ *       <Hero />
+ *       <Features />
+ *       <Testimonials />
+ *     </main>
+ *   )
+ * }
+ * ```
+ *
+ * @example
+ * // Used in a social proof section
+ * <section className="social-proof">
+ *   <Testimonials />
+ * </section>
+ */
 export default function Testimonials() {
   return (
     <section className="py-20">
       <div className="container">
         <div className="mx-auto max-w-3xl text-center mb-16">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">Trusted by Legal Professionals</h2>
+          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">
+            Trusted by Legal Professionals
+          </h2>
           <p className="text-lg text-muted-foreground">
-            See how LawBotics is transforming legal document analysis for firms and individuals.
+            See how LawBotics is transforming legal document analysis for firms
+            and individuals.
           </p>
         </div>
 
@@ -21,15 +57,22 @@ export default function Testimonials() {
               <div className="flex-1 bg-muted/30 p-8 rounded-xl">
                 <div className="flex items-center gap-4 mb-6">
                   <Avatar className="h-16 w-16 border-4 border-background">
-                    <AvatarImage src={testimonial.avatar} alt={testimonial.name} />
-                    <AvatarFallback>{testimonial.name.charAt(0)}</AvatarFallback>
+                    <AvatarImage
+                      src={testimonial.avatar}
+                      alt={testimonial.name}
+                    />
+                    <AvatarFallback>
+                      {testimonial.name.charAt(0)}
+                    </AvatarFallback>
                   </Avatar>
                   <div>
                     <p className="font-semibold text-lg">{testimonial.name}</p>
                     <p className="text-muted-foreground">{testimonial.role}</p>
                   </div>
                 </div>
-                <p className="text-lg italic">&ldquo;{testimonial.quote}&rdquo;</p>
+                <p className="text-lg italic">
+                  &ldquo;{testimonial.quote}&rdquo;
+                </p>
               </div>
 
               <div className="flex-1 flex items-center">
@@ -65,6 +108,5 @@ export default function Testimonials() {
         </div>
       </div>
     </section>
-  )
+  );
 }
-

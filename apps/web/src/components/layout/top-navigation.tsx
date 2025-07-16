@@ -81,12 +81,6 @@ export function TopNavigation({
           >
             <Logo />
           </a>
-          <div className="flex flex-col">
-            <span className="text-lg font-bold">LawBotics</span>
-            <span className="text-xs text-muted-foreground hidden sm:block">
-              Legal Document Analysis
-            </span>
-          </div>
         </div>
 
         {/* Search Bar - Desktop */}

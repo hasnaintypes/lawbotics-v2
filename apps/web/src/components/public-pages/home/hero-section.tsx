@@ -1,7 +1,39 @@
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { GraduationCap, Scale, Shield } from "lucide-react"
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { GraduationCap, Scale, Shield } from "lucide-react";
 
+/**
+ * Hero section component for the LawBotics homepage
+ *
+ * Features a compelling headline, call-to-action buttons, and key value propositions
+ * with icons showcasing the platform's core benefits: security, legal precision,
+ * and continuous AI learning capabilities.
+ *
+ * @component
+ * @returns {JSX.Element} The rendered hero section with background gradient,
+ *   main content, CTAs, and feature highlights
+ *
+ * @example
+ * ```tsx
+ * import { Hero } from "@/components/public/home"
+ *
+ * export default function HomePage() {
+ *   return (
+ *     <main>
+ *       <Hero />
+ *     </main>
+ *   )
+ * }
+ * ```
+ *
+ * @example
+ * // Used within a landing page layout
+ * <section>
+ *   <Hero />
+ *   <Features />
+ *   <Testimonials />
+ * </section>
+ */
 export default function Hero() {
   return (
     <section className="relative overflow-hidden py-20 md:py-32">
@@ -17,12 +49,13 @@ export default function Hero() {
           </div>
 
           <h1 className="mb-6 text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
-            Transform Legal Documents with <span className="text-primary">AI Intelligence</span>
+            Transform Legal Documents with{" "}
+            <span className="text-primary">AI Intelligence</span>
           </h1>
 
           <p className="mb-10 text-xl text-muted-foreground">
-            Analyze contracts, extract insights, and manage legal documents with precision and confidence using our
-            advanced AI technology.
+            Analyze contracts, extract insights, and manage legal documents with
+            precision and confidence using our advanced AI technology.
           </p>
 
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -39,7 +72,8 @@ export default function Hero() {
               {
                 icon: <Shield className="h-6 w-6 text-primary" />,
                 title: "Secure Analysis",
-                description: "Your documents never leave our secure environment",
+                description:
+                  "Your documents never leave our secure environment",
               },
               {
                 icon: <Scale className="h-6 w-6 text-primary" />,
@@ -53,15 +87,18 @@ export default function Hero() {
               },
             ].map((item, index) => (
               <div key={index} className="flex flex-col items-center">
-                <div className="mb-4 rounded-full bg-primary/10 p-3">{item.icon}</div>
+                <div className="mb-4 rounded-full bg-primary/10 p-3">
+                  {item.icon}
+                </div>
                 <h3 className="mb-2 font-medium">{item.title}</h3>
-                <p className="text-center text-sm text-muted-foreground">{item.description}</p>
+                <p className="text-center text-sm text-muted-foreground">
+                  {item.description}
+                </p>
               </div>
             ))}
           </div>
         </div>
       </div>
     </section>
-  )
+  );
 }
-

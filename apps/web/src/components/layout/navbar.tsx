@@ -77,7 +77,7 @@ export function Navbar() {
           </button>
 
           {/* Sign in button */}
-          <SignInButton>
+          <SignInButton mode="modal">
             <Button className="rounded-full">Get Started</Button>
           </SignInButton>
         </div>
