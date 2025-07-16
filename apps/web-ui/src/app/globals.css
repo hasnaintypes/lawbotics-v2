@@ -151,3 +151,109 @@
     text-wrap: balance;
   }
 }
+
+/* Tiptap Rich Text Editor Styles */
+.tiptap-editor ul,
+.rich-text-editor-content ul {
+  list-style-type: disc !important;
+  list-style-position: outside !important;
+  margin-left: 0 !important;
+  padding-left: 1.5rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.tiptap-editor ol,
+.rich-text-editor-content ol {
+  list-style-type: decimal !important;
+  list-style-position: outside !important;
+  margin-left: 0 !important;
+  padding-left: 1.5rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.tiptap-editor li,
+.rich-text-editor-content li {
+  display: list-item !important;
+  margin-bottom: 0.25rem !important;
+  padding-left: 0 !important;
+  margin-left: 0 !important;
+}
+
+.tiptap-editor li p,
+.rich-text-editor-content li p {
+  margin: 0 !important;
+  display: inline !important;
+}
+
+.tiptap-editor blockquote,
+.rich-text-editor-content blockquote {
+  border-left: 4px solid #cbd5e1 !important;
+  padding-left: 1rem !important;
+  font-style: italic !important;
+  color: #64748b !important;
+  margin: 1rem 0 !important;
+  background-color: #f8fafc !important;
+  padding: 0.75rem 1rem !important;
+  border-radius: 0.375rem !important;
+}
+
+.tiptap-editor p,
+.rich-text-editor-content p {
+  margin-bottom: 0.5rem !important;
+}
+
+.tiptap-editor strong,
+.rich-text-editor-content strong {
+  font-weight: 600 !important;
+}
+
+.tiptap-editor em,
+.rich-text-editor-content em {
+  font-style: italic !important;
+}
+
+@layer components {
+  .tiptap-editor .tiptap-bullet-list {
+    @apply list-disc list-inside ml-4 space-y-1;
+  }
+
+  .tiptap-editor .tiptap-ordered-list {
+    @apply list-decimal list-inside ml-4 space-y-1;
+  }
+
+  .tiptap-editor .tiptap-list-item {
+    @apply mb-1;
+  }
+
+  .tiptap-editor .tiptap-blockquote {
+    @apply border-l-4 border-slate-300 pl-4 italic text-slate-600 my-4;
+  }
+
+  .tiptap-editor ul {
+    @apply list-disc list-inside ml-4 space-y-1;
+  }
+
+  .tiptap-editor ol {
+    @apply list-decimal list-inside ml-4 space-y-1;
+  }
+
+  .tiptap-editor li {
+    @apply mb-1;
+  }
+
+  .tiptap-editor blockquote {
+    @apply border-l-4 border-slate-300 pl-4 italic text-slate-600 my-4;
+  }
+
+  .tiptap-editor p {
+    @apply mb-2;
+  }
+
+  .tiptap-editor strong {
+    @apply font-semibold;
+  }
+
+  .tiptap-editor em {
+    @apply italic;
+  }
+}

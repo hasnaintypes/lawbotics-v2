@@ -1,4 +1,4 @@
-# LawBotics v2 🤖⚖️
+# LawBotics v2
 
 A sophisticated AI-powered legal contract analysis platform built with Next.js and advanced machine learning models. This platform leverages the Contract Understanding Atticus Dataset (CUAD) to provide intelligent contract review and clause extraction capabilities.
 
@@ -24,6 +24,7 @@ LawBotics v2 is an advanced legal technology platform that combines artificial i
 ## ✨ Features
 
 ### Core Functionality
+
 - **AI-Powered Contract Analysis**: Automated clause identification and extraction from legal contracts
 - **Multi-Format Support**: Process contracts in PDF and text formats
 - **Real-time Analysis**: Instant contract review with immediate results
@@ -31,12 +32,14 @@ LawBotics v2 is an advanced legal technology platform that combines artificial i
 - **Interactive UI**: Modern, responsive web interface built with Next.js 15
 
 ### AI & Machine Learning
+
 - **Fine-tuned LLaMA Models**: Custom-trained models on legal contract data
 - **CUAD Dataset Integration**: Leverages 13,000+ labeled contract examples
 - **LangChain Integration**: Advanced AI orchestration and processing
 - **Google GenAI Support**: Integration with Google's generative AI models
 
 ### User Experience
+
 - **Authentication**: Secure user management with Clerk
 - **Dark/Light Mode**: Customizable theme support
 - **Responsive Design**: Optimized for desktop and mobile devices
@@ -70,22 +73,25 @@ LawBotics v2 is an advanced legal technology platform that combines artificial i
 ### Quick Start
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/hasnaintypes/lawbotics-v2.git
    cd lawbotics-v2
    ```
 
 2. **Install dependencies**
+
    ```bash
    # Install web UI dependencies
    cd apps/web-ui
    npm install
-   
+
    # Return to root
    cd ../..
    ```
 
 3. **Set up environment variables**
+
    ```bash
    # Copy environment template
    cp apps/web-ui/.env.example apps/web-ui/.env.local
@@ -93,22 +99,24 @@ LawBotics v2 is an advanced legal technology platform that combines artificial i
 
 4. **Configure environment variables**
    Edit `apps/web-ui/.env.local` with your keys:
+
    ```env
    # Clerk Authentication
    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
    CLERK_SECRET_KEY=your_clerk_secret_key
-   
+
    # Convex Database
    NEXT_PUBLIC_CONVEX_URL=your_convex_url
-   
+
    # Google AI
    GOOGLE_GENERATIVE_AI_API_KEY=your_google_ai_key
-   
+
    # Other services
    SVIX_SECRET=your_svix_secret
    ```
 
 5. **Start the development server**
+
    ```bash
    cd apps/web-ui
    npm run dev
@@ -147,11 +155,13 @@ The project includes comprehensive AI model training capabilities using the CUAD
 ### Training Process
 
 1. **Navigate to AI model directory**
+
    ```bash
    cd ai-model
    ```
 
 2. **Open Jupyter Notebook**
+
    ```bash
    jupyter notebook Fine_tuning_code.ipynb
    ```
@@ -202,6 +212,7 @@ lawbotics-v2/
 ## 🛠️ Technology Stack
 
 ### Frontend
+
 - **Next.js 15**: React framework with App Router
 - **React 19**: Latest React with concurrent features
 - **TypeScript**: Type-safe development
@@ -210,18 +221,21 @@ lawbotics-v2/
 - **Lucide React**: Modern icon library
 
 ### Backend & Services
+
 - **Convex**: Real-time database and backend
 - **Clerk**: Authentication and user management
 - **SVIX**: Webhook management
 - **Axios**: HTTP client for API requests
 
 ### AI & Machine Learning
+
 - **LangChain**: AI application framework
 - **Google Generative AI**: AI model integration
 - **Python**: Model training and processing
 - **Jupyter**: Interactive development environment
 
 ### State Management & Utils
+
 - **Zustand**: Lightweight state management
 - **React PDF**: PDF processing and viewing
 - **Recharts**: Data visualization
@@ -304,6 +318,7 @@ We welcome contributions to LawBotics v2! Please follow these guidelines:
 ### Issues and Bug Reports
 
 Please use the GitHub issue tracker to report bugs or request features. Include:
+
 - Detailed description of the issue
 - Steps to reproduce
 - Expected vs actual behavior
@@ -335,4 +350,4 @@ For support and questions:
 
 **Built with ❤️ by the LawBotics Team**
 
-*Empowering legal professionals with AI-driven contract analysis*
+_Empowering legal professionals with AI-driven contract analysis_
