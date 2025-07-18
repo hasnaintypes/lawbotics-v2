@@ -16,11 +16,10 @@ import type {
 import type * as actions_analyzeDocument from "../actions/analyzeDocument.js";
 import type * as actions_chat from "../actions/chat.js";
 import type * as actions_extractParties from "../actions/extractParties.js";
-import type * as actions_generateContractPdf from "../actions/generateContractPdf.js";
 import type * as actions_processDocument from "../actions/processDocument.js";
 import type * as analyses from "../analyses.js";
 import type * as analytics from "../analytics.js";
-import type * as contractTemplates from "../contractTemplates.js";
+import type * as contract_templates from "../contract_templates.js";
 import type * as contracts from "../contracts.js";
 import type * as documents from "../documents.js";
 import type * as extractedParties from "../extractedParties.js";
@@ -41,11 +40,10 @@ declare const fullApi: ApiFromModules<{
   "actions/analyzeDocument": typeof actions_analyzeDocument;
   "actions/chat": typeof actions_chat;
   "actions/extractParties": typeof actions_extractParties;
-  "actions/generateContractPdf": typeof actions_generateContractPdf;
   "actions/processDocument": typeof actions_processDocument;
   analyses: typeof analyses;
   analytics: typeof analytics;
-  contractTemplates: typeof contractTemplates;
+  contract_templates: typeof contract_templates;
   contracts: typeof contracts;
   documents: typeof documents;
   extractedParties: typeof extractedParties;

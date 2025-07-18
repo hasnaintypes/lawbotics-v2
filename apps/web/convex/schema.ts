@@ -194,146 +194,352 @@ export default defineSchema({
   }).index("by_document", ["documentId"]),
 
   /**
-   * Contracts table - stores user-generated contracts with comprehensive management features
+   * Contracts table - stores contract documents and metadata
    *
-   * @field userId - Clerk user ID for authentication integration
-   * @field templateSlug - Reference to the template used (if any)
-   * @field title - Contract title/name
-   * @field description - Optional contract description
-   * @field formData - Form data used to populate the contract
-   * @field enabledClauses - Which clauses are enabled in this contract
-   * @field generatedContent - Final generated contract content in Markdown format
-   * @field status - Current contract status (draft, review, active, completed, cancelled)
-   * @field version - Version number for this contract instance
-   * @field parentContractId - Reference to parent contract for versioning (optional)
-   * @field pdfFileId - Reference to stored PDF file in Convex storage (optional)
-   * @field metadata - Additional contract metadata (parties, dates, etc.)
-   * @field createdAt - Timestamp when contract was created
-   * @field updatedAt - Timestamp when contract was last modified
    */
+  contracts: defineTable({
+    /** Contract title/name */
+    name: v.string(),
+    /** Contract description */
+    description: v.optional(v.string()),
+    /** Contract type/category */
+    type: v.union(
+      v.literal("nda"),
+      v.literal("service_agreement"),
+      v.literal("employment"),
+      v.literal("lease"),
+      v.literal("purchase"),
+      v.literal("partnership"),
+      v.literal("licensing"),
+      v.literal("consulting"),
+      v.literal("vendor"),
+      v.literal("custom")
+    ),
+    /** Current contract status */
+    status: v.union(
+      v.literal("draft"),
+      v.literal("under_review"),
+      v.literal("pending_approval"),
+      v.literal("approved"),
+      v.literal("active"),
+      v.literal("expired"),
+      v.literal("terminated"),
+      v.literal("archived")
+    ),
+    /** Contract version number */
+    version: v.string(),
+    /** Contract priority level */
+    priority: v.union(
+      v.literal("low"),
+      v.literal("medium"),
+      v.literal("high"),
+      v.literal("urgent")
+    ),
+    /** Contract content/body */
+    content: v.string(),
+    /** Contract value/amount */
+    value: v.optional(v.number()),
+    /** Contract currency */
+    currency: v.optional(v.string()),
+    /** Contract start date */
+    startDate: v.optional(v.number()),
+    /** Contract end date */
+    endDate: v.optional(v.number()),
+    /** Contract expiration date */
+    expirationDate: v.optional(v.number()),
+    /** Auto-renewal flag */
+    autoRenewal: v.boolean(),
+    /** Renewal period in days */
+    renewalPeriod: v.optional(v.number()),
+    /** Contract author user ID */
+    authorId: v.id("users"),
+    /** Assigned lawyer/manager user ID */
+    assignedTo: v.optional(v.id("users")),
+    /** Template used to create contract */
+    templateId: v.optional(v.id("contract_templates")),
+    /** Parent contract ID (for amendments/versions) */
+    parentContractId: v.optional(v.id("contracts")),
+    /** Contract tags for categorization */
+    tags: v.array(v.string()),
+    /** Contract creation timestamp */
+    createdAt: v.number(),
+    /** Last contract update timestamp */
+    updatedAt: v.number(),
+  })
+    .index("by_author", ["authorId"])
+    .index("by_status", ["status"])
+    .index("by_type", ["type"])
+    .index("by_assigned", ["assignedTo"])
+    .index("by_template", ["templateId"])
+    .index("by_expiration", ["expirationDate"])
+    .index("by_created", ["createdAt"]),
+
   /**
-   * Contract Templates table - stores contract templates created by admins
-   * These templates define the structure and fields for different contract types
-   *
-   * @field slug - Unique identifier for the template (URL-friendly)
-   * @field title - Template display name
-   * @field description - Template description for users
-   * @field category - Template category (nda, employment, lease, etc.)
-   * @field isActive - Whether the template is available for use
-   * @field formFields - Array of form field definitions for data collection
-   * @field clauses - Array of contract clause definitions
-   * @field content - Template content with placeholders for variable substitution
-   * @field metadata - Additional template configuration
-   * @field createdBy - Admin user who created this template
-   * @field createdAt - Timestamp when template was created
-   * @field updatedAt - Timestamp when template was last modified
+   * Contract templates table - stores reusable contract templates
    */
-  contractTemplates: defineTable({
-    slug: v.string(),
-    title: v.string(),
+  contract_templates: defineTable({
+    /** Template name */
+    name: v.string(),
+    /** Template description */
     description: v.string(),
+    /** Template category */
     category: v.string(),
-    isActive: v.boolean(),
-    formFields: v.array(
+    /** Template type */
+    type: v.union(
+      v.literal("nda"),
+      v.literal("service_agreement"),
+      v.literal("employment"),
+      v.literal("lease"),
+      v.literal("purchase"),
+      v.literal("partnership"),
+      v.literal("licensing"),
+      v.literal("consulting"),
+      v.literal("vendor"),
+      v.literal("custom")
+    ),
+    /** Template content/body */
+    content: v.string(),
+    /** Template variables/placeholders */
+    variables: v.array(
       v.object({
-        id: v.string(),
-        label: v.string(),
+        name: v.string(),
         type: v.union(
           v.literal("text"),
-          v.literal("email"),
-          v.literal("tel"),
+          v.literal("number"),
           v.literal("date"),
-          v.literal("select"),
-          v.literal("textarea"),
-          v.literal("number")
+          v.literal("select")
         ),
         required: v.boolean(),
         placeholder: v.optional(v.string()),
         options: v.optional(v.array(v.string())),
-        validation: v.optional(
-          v.object({
-            minLength: v.optional(v.number()),
-            maxLength: v.optional(v.number()),
-            pattern: v.optional(v.string()),
-          })
-        ),
-        section: v.optional(v.string()),
-        order: v.number(),
       })
     ),
-    clauses: v.array(
-      v.object({
-        id: v.string(),
-        title: v.string(),
-        content: v.string(),
-        defaultEnabled: v.boolean(),
-        optional: v.boolean(),
-        category: v.optional(v.string()),
-        order: v.number(),
-      })
-    ),
-    content: v.string(),
-    metadata: v.optional(
-      v.object({
-        jurisdiction: v.optional(v.string()),
-        language: v.optional(v.string()),
-        version: v.optional(v.string()),
-        tags: v.optional(v.array(v.string())),
-      })
-    ),
-    createdBy: v.string(),
+    /** Template usage count */
+    usageCount: v.number(),
+    /** Whether template is active */
+    isActive: v.boolean(),
+    /** Template author user ID */
+    authorId: v.id("users"),
+    /** Template creation timestamp */
     createdAt: v.number(),
+    /** Last template update timestamp */
     updatedAt: v.number(),
   })
-    .index("by_slug", ["slug"])
     .index("by_category", ["category"])
-    .index("by_active", ["isActive"])
-    .index("by_creator", ["createdBy"]),
+    .index("by_type", ["type"])
+    .index("by_author", ["authorId"])
+    .index("by_usage", ["usageCount"]),
 
-  contracts: defineTable({
-    userId: v.string(),
-    templateId: v.optional(v.id("contractTemplates")),
-    templateSlug: v.optional(v.string()),
-    title: v.string(),
-    description: v.optional(v.string()),
-    formData: v.any(), // Allow flexible form data structure for custom contracts
-    enabledClauses: v.any(), // Allow flexible clause selection for custom contracts
-    generatedContent: v.optional(v.string()),
-    status: v.union(
-      v.literal("draft"),
-      v.literal("review"),
-      v.literal("active"),
-      v.literal("completed"),
-      v.literal("cancelled")
+  /**
+   * Contract parties table - stores parties involved in contracts
+   */
+  contract_parties: defineTable({
+    /** Associated contract ID */
+    contractId: v.id("contracts"),
+    /** Party type */
+    type: v.union(
+      v.literal("client"),
+      v.literal("vendor"),
+      v.literal("partner"),
+      v.literal("employee"),
+      v.literal("contractor"),
+      v.literal("other")
     ),
-    version: v.number(),
-    parentContractId: v.optional(v.id("contracts")),
-    pdfFileId: v.optional(v.id("_storage")),
-    metadata: v.optional(
+    /** Party name (individual or organization) */
+    name: v.string(),
+    /** Party email */
+    email: v.optional(v.string()),
+    /** Party phone */
+    phone: v.optional(v.string()),
+    /** Party address */
+    address: v.optional(v.string()),
+    /** Party role in contract */
+    role: v.string(),
+    /** Whether party has signed */
+    hasSigned: v.boolean(),
+    /** Signature date */
+    signedAt: v.optional(v.number()),
+    /** Party creation timestamp */
+    createdAt: v.number(),
+  })
+    .index("by_contract", ["contractId"])
+    .index("by_type", ["type"]),
+
+  /**
+   * Contract revisions table - tracks contract version history
+   */
+  contract_revisions: defineTable({
+    /** Associated contract ID */
+    contractId: v.id("contracts"),
+    /** Revision version */
+    version: v.string(),
+    /** Revision content */
+    content: v.string(),
+    /** Revision summary/notes */
+    summary: v.string(),
+    /** Changes made in this revision */
+    changes: v.array(
       v.object({
-        parties: v.optional(
-          v.array(
-            v.object({
-              name: v.string(),
-              role: v.string(),
-              email: v.optional(v.string()),
-            })
-          )
-        ),
-        effectiveDate: v.optional(v.string()),
-        expirationDate: v.optional(v.string()),
-        governingLaw: v.optional(v.string()),
-        totalValue: v.optional(v.string()),
-        tags: v.optional(v.array(v.string())),
+        field: v.string(),
+        oldValue: v.optional(v.string()),
+        newValue: v.string(),
+        description: v.optional(v.string()),
       })
     ),
+    /** Revision author user ID */
+    authorId: v.id("users"),
+    /** Revision creation timestamp */
     createdAt: v.number(),
-    updatedAt: v.number(),
+  })
+    .index("by_contract", ["contractId"])
+    .index("by_author", ["authorId"])
+    .index("by_version", ["contractId", "version"]),
+
+  /**
+   * Contract approvals table - tracks approval workflow
+   */
+  contract_approvals: defineTable({
+    /** Associated contract ID */
+    contractId: v.id("contracts"),
+    /** Approver user ID */
+    approverId: v.id("users"),
+    /** Approval status */
+    status: v.union(
+      v.literal("pending"),
+      v.literal("approved"),
+      v.literal("rejected"),
+      v.literal("withdrawn")
+    ),
+    /** Approval comments */
+    comments: v.optional(v.string()),
+    /** Approval due date */
+    dueDate: v.optional(v.number()),
+    /** Approval completion timestamp */
+    completedAt: v.optional(v.number()),
+    /** Approval request timestamp */
+    createdAt: v.number(),
+  })
+    .index("by_contract", ["contractId"])
+    .index("by_approver", ["approverId"])
+    .index("by_status", ["status"]),
+
+  /**
+   * Contract attachments table - stores contract-related files
+   */
+  contract_attachments: defineTable({
+    /** Associated contract ID */
+    contractId: v.id("contracts"),
+    /** File name */
+    fileName: v.string(),
+    /** File type/extension */
+    fileType: v.string(),
+    /** File size in bytes */
+    fileSize: v.number(),
+    /** File storage URL */
+    fileUrl: v.string(),
+    /** Attachment description */
+    description: v.optional(v.string()),
+    /** Uploader user ID */
+    uploadedBy: v.id("users"),
+    /** Upload timestamp */
+    createdAt: v.number(),
+  })
+    .index("by_contract", ["contractId"])
+    .index("by_uploader", ["uploadedBy"]),
+
+  /**
+   * Contract notifications table - stores system notifications
+   */
+  contract_notifications: defineTable({
+    /** Associated contract ID */
+    contractId: v.optional(v.id("contracts")),
+    /** Recipient user ID */
+    userId: v.id("users"),
+    /** Notification type */
+    type: v.union(
+      v.literal("contract_created"),
+      v.literal("contract_updated"),
+      v.literal("approval_required"),
+      v.literal("contract_approved"),
+      v.literal("contract_rejected"),
+      v.literal("contract_expiring"),
+      v.literal("contract_expired"),
+      v.literal("signature_required"),
+      v.literal("contract_signed")
+    ),
+    /** Notification title */
+    title: v.string(),
+    /** Notification message */
+    message: v.string(),
+    /** Whether notification has been read */
+    isRead: v.boolean(),
+    /** Notification creation timestamp */
+    createdAt: v.number(),
   })
     .index("by_user", ["userId"])
-    .index("by_template_id", ["templateId"])
-    .index("by_template", ["templateSlug"])
-    .index("by_status", ["status"])
-    .index("by_parent", ["parentContractId"])
-    .index("by_version", ["userId", "parentContractId", "version"]),
+    .index("by_contract", ["contractId"])
+    .index("by_type", ["type"])
+    .index("by_read_status", ["userId", "isRead"]),
+
+  /**
+   * Contract analytics table - stores analytics and metrics
+   */
+  contract_analytics: defineTable({
+    /** Analytics date (YYYY-MM-DD) */
+    date: v.string(),
+    /** Metric type */
+    metric: v.union(
+      v.literal("contracts_created"),
+      v.literal("contracts_signed"),
+      v.literal("contracts_expired"),
+      v.literal("approval_time_avg"),
+      v.literal("contract_value_total"),
+      v.literal("template_usage")
+    ),
+    /** Metric value */
+    value: v.number(),
+    /** Additional metadata */
+    metadata: v.optional(
+      v.object({
+        contractType: v.optional(v.string()),
+        department: v.optional(v.string()),
+        templateId: v.optional(v.id("contract_templates")),
+      })
+    ),
+    /** Analytics record timestamp */
+    createdAt: v.number(),
+  })
+    .index("by_date", ["date"])
+    .index("by_metric", ["metric"])
+    .index("by_date_metric", ["date", "metric"]),
+
+  /**
+   * Clause library table - stores reusable clause templates for contracts
+   */
+  clause_library: defineTable({
+    /** Clause title */
+    title: v.string(),
+    /** Clause description */
+    description: v.string(),
+    /** Clause content (HTML) */
+    content: v.string(),
+    /** Clause category */
+    category: v.string(),
+    /** Clause tags for categorization */
+    tags: v.array(v.string()),
+    /** Clause usage count */
+    usageCount: v.number(),
+    /** Whether clause is active */
+    isActive: v.boolean(),
+    /** Clause author user ID */
+    authorId: v.id("users"),
+    /** Clause creation timestamp */
+    createdAt: v.number(),
+    /** Last clause update timestamp */
+    updatedAt: v.number(),
+  })
+    .index("by_category", ["category"])
+    .index("by_author", ["authorId"])
+    .index("by_usage", ["usageCount"])
+    .index("by_active", ["isActive"]),
 });
