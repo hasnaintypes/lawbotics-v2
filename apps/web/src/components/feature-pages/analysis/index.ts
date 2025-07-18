@@ -12,4 +12,4 @@ export { NegotiableTerms } from "./negotiable-terms";
 export { OverallImpression } from "./overal-impression";
 export { Recommendations } from "./recommendations";
 export { RedFlags } from "./red-flags";
-export { RiskScore } from "./risk-scoree";
+export { RiskScore } from "./risk-score";
