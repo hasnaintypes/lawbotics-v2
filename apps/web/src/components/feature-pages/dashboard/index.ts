@@ -21,3 +21,5 @@ export { UploadDialog } from "./upload-dialog";
 export { PostUploadDialog } from "./post-upload-dialog";
 export { AnalysisOptionsDialog } from "./analysis-option-dialog";
 export { AnalysisLoadingDialog } from "./analysis-loading-dialog";
+
+export { SyncUserOnLoad } from "./sync-user-on-load";

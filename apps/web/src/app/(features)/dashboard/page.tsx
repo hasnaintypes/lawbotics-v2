@@ -23,6 +23,7 @@ import {
   DocumentTable,
   UploadDialog,
   PostUploadDialog,
+  SyncUserOnLoad
 } from "@/components/feature-pages/dashboard";
 import { useUser } from "@clerk/nextjs";
 import { useConvex } from "convex/react";

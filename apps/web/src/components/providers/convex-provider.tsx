@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useAuth } from "@clerk/nextjs";
+import { ClerkProvider, useAuth } from "@clerk/nextjs";
 import { ConvexReactClient } from "convex/react";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
 
@@ -11,7 +11,7 @@ import { ConvexProviderWithClerk } from "convex/react-clerk";
  * Creates a singleton instance of the Convex client using the environment variable.
  * This client handles all database operations and real-time subscriptions.
  */
-const convexClient = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
 /**
  * Props for the ConvexProvider component
@@ -80,8 +80,12 @@ interface ConvexProviderProps {
  */
 export function ConvexProvider({ children }: ConvexProviderProps) {
   return (
-    <ConvexProviderWithClerk client={convexClient} useAuth={useAuth}>
-      {children}
-    </ConvexProviderWithClerk>
+    <ClerkProvider
+      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY!}
+    >
+      <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
+        {children}
+      </ConvexProviderWithClerk>
+    </ClerkProvider>
   );
 }
