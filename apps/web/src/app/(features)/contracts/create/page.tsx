@@ -1,5 +1,6 @@
 "use client";
-import { ContractCreationForm } from "@/components/feature-pages/contracts"
+import { Suspense } from "react";
+import { ContractCreationForm } from "@/components/feature-pages/contracts";
 
 /**
  * Contract creation page component
@@ -10,11 +11,11 @@ export default function CreateContractPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
-
-
         {/* Contract Creation Form */}
-        <ContractCreationForm />
+        <Suspense>
+          <ContractCreationForm />
+        </Suspense>
       </div>
     </div>
-  )
+  );
 }
