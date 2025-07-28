@@ -82,12 +82,14 @@ export const useDashboardAnalytics = (
 ): UseDashboardAnalyticsReturn => {
   const { user } = useUser();
 
-  // Fetch real analytics stats from Convex
+  // Only run the query if user is loaded and authenticated
+  const shouldFetch = !!user?.id;
   const analyticsStats = useQuery(
     api.analytics.getAnalyticsStats,
-    user?.id ? { userId: user.id } : "skip"
+    shouldFetch ? { userId: user.id } : "skip"
   );
 
+  // Memoize metrics only when analyticsStats changes
   const metrics = useMemo<DashboardMetrics>(() => {
     if (!analyticsStats) {
       return {
@@ -117,68 +119,71 @@ export const useDashboardAnalytics = (
     };
   }, [analyticsStats]);
 
+  // Memoize analyticsCards only when analyticsStats changes
   const analyticsCards = useMemo<AnalyticsCard[]>(
-    () => [
-      {
-        title: "Total Documents",
-        value: metrics.totalDocuments.toString(),
-        change: `+${metrics.documentsChange}%`,
-        icon: FileText,
-        iconColor: "text-blue-600",
-        trend: "up" as const,
-        description: "Documents uploaded",
-        badge: metrics.totalDocuments > 10 ? "High Volume" : undefined,
-      },
-      {
-        title: "Documents Analyzed",
-        value: metrics.totalAnalyses.toString(),
-        change: `+${metrics.analysesChange}%`,
-        icon: BarChart3,
-        iconColor: "text-green-600",
-        trend: "up" as const,
-        description: "Completed analyses",
-        badge: undefined,
-      },
-      {
-        title: "Average Risk Score",
-        value: metrics.avgRiskScore > 0 ? `${metrics.avgRiskScore}%` : "N/A",
-        change:
-          metrics.riskChange !== 0 ? `${metrics.riskChange}%` : "No change",
-        icon: AlertTriangle,
-        iconColor:
-          metrics.avgRiskScore >= 75
-            ? "text-red-600"
-            : metrics.avgRiskScore >= 40
-              ? "text-yellow-600"
-              : "text-green-600",
-        trend:
-          metrics.riskChange < 0
-            ? "down"
-            : metrics.riskChange > 0
-              ? "up"
-              : "neutral",
-        description: "Risk assessment",
-        badge:
-          metrics.avgRiskScore >= 75
-            ? "High Risk"
-            : metrics.avgRiskScore >= 40
-              ? "Medium Risk"
-              : metrics.avgRiskScore > 0
-                ? "Low Risk"
-                : undefined,
-      },
-      {
-        title: "Recent Activity",
-        value: metrics.recentActivity.toString(),
-        change: `+${metrics.activityChange}%`,
-        icon: TrendingUp,
-        iconColor: "text-purple-600",
-        trend: "up" as const,
-        description: "Last 7 days",
-        badge: undefined,
-      },
-    ],
-    [metrics]
+    () => {
+      return [
+        {
+          title: "Total Documents",
+          value: metrics.totalDocuments.toString(),
+          change: `+${metrics.documentsChange}%`,
+          icon: FileText,
+          iconColor: "text-blue-600",
+          trend: "up" as const,
+          description: "Documents uploaded",
+          badge: metrics.totalDocuments > 10 ? "High Volume" : undefined,
+        },
+        {
+          title: "Documents Analyzed",
+          value: metrics.totalAnalyses.toString(),
+          change: `+${metrics.analysesChange}%`,
+          icon: BarChart3,
+          iconColor: "text-green-600",
+          trend: "up" as const,
+          description: "Completed analyses",
+          badge: undefined,
+        },
+        {
+          title: "Average Risk Score",
+          value: metrics.avgRiskScore > 0 ? `${metrics.avgRiskScore}%` : "N/A",
+          change:
+            metrics.riskChange !== 0 ? `${metrics.riskChange}%` : "No change",
+          icon: AlertTriangle,
+          iconColor:
+            metrics.avgRiskScore >= 75
+              ? "text-red-600"
+              : metrics.avgRiskScore >= 40
+                ? "text-yellow-600"
+                : "text-green-600",
+          trend:
+            metrics.riskChange < 0
+              ? "down"
+              : metrics.riskChange > 0
+                ? "up"
+                : "neutral",
+          description: "Risk assessment",
+          badge:
+            metrics.avgRiskScore >= 75
+              ? "High Risk"
+              : metrics.avgRiskScore >= 40
+                ? "Medium Risk"
+                : metrics.avgRiskScore > 0
+                  ? "Low Risk"
+                  : undefined,
+        },
+        {
+          title: "Recent Activity",
+          value: metrics.recentActivity.toString(),
+          change: `+${metrics.activityChange}%`,
+          icon: TrendingUp,
+          iconColor: "text-purple-600",
+          trend: "up" as const,
+          description: "Last 7 days",
+          badge: undefined,
+        },
+      ];
+    },
+    [analyticsStats]
   );
 
   return {

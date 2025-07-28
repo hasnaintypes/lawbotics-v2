@@ -363,3 +363,5 @@ export function getRiskMessage(riskScore: number): string {
 
   return "This document contains significant risk factors requiring immediate attention.";
 }
+
+

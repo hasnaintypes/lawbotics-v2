@@ -57,7 +57,10 @@ export const extractParties: ReturnType<typeof action> = action({
         documentContent = document.content;
       }
 
-      const parties = await extractPartiesFromDocument(ctx, documentContent);
+      const parties = await extractPartiesFromDocument(
+        ctx,
+        documentContent as string
+      );
       const extractedPartiesId = await ctx.runMutation(
         api.extractedParties.storeExtractedParties,
         {
@@ -132,7 +135,7 @@ async function extractPartiesFromDocument(
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
   let attempts = 0;
-  const maxRetries = 10;
+  const maxRetries = 3; // Reduce retries for faster failure
 
   while (attempts < maxRetries) {
     try {
@@ -196,7 +199,7 @@ async function extractPartiesFromDocument(
         const jitterMilliseconds = Math.floor(Math.random() * 1001);
         calculatedDelaySeconds += jitterMilliseconds / 1000;
 
-        const maxSensibleDelaySeconds = 300;
+        const maxSensibleDelaySeconds = 30; // Cap max delay to 30s
         const finalDelaySeconds = Math.min(
           calculatedDelaySeconds,
           maxSensibleDelaySeconds

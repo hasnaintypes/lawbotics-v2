@@ -1,3 +1,4 @@
+"use client";
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import type { DocumentEntry, SortDirection } from "@/lib";

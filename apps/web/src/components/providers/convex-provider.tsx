@@ -17,6 +17,7 @@ function ConvexAuthProvider({ children }: ConvexProviderProps) {
   useEffect(() => {
     convex.setAuth(async () => {
       const token = await getToken({ template: "convex" }); // Template name must match what you set in Clerk
+      console.log("Convex token?", token);
       return token ?? null;
     });
   }, [getToken]);

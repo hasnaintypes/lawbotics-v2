@@ -1,3 +1,4 @@
+"use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery, useAction } from "convex/react";
@@ -147,6 +148,15 @@ export function useAnalysis(
       });
 
       console.log("Analysis initiated:", result);
+
+      // If the error code is NOT_LEGAL_DOCUMENT, show a specific error and do not navigate
+      if (result.code === "NOT_LEGAL_DOCUMENT") {
+        setError(
+          result.error ||
+            "This PDF is not a legal document, contract, policy, or agreement."
+        );
+        return;
+      }
 
       if (result.success && result.analysisId) {
         setLoadingMessage(ANALYSIS_LOADING_MESSAGES.SUCCESS);

@@ -58,7 +58,7 @@ export default function Hero() {
             precision and confidence using our advanced AI technology.
           </p>
 
-          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
+          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row cursor-pointer">
             <Button size="lg" asChild>
               <Link href="/signup">Get Started Free</Link>
             </Button>

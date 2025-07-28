@@ -65,7 +65,7 @@ export function Navbar() {
           {/* Theme toggle button */}
           <button
             onClick={toggleTheme}
-            className="p-1 rounded-md hover:bg-accent transition-colors"
+            className="p-1 rounded-md hover:bg-accent transition-colors cusor-pointer"
             aria-label={`Switch to ${resolvedTheme === "dark" ? "light" : "dark"} theme`}
             type="button"
           >
@@ -78,7 +78,7 @@ export function Navbar() {
 
           {/* Sign in button */}
           <SignInButton mode="modal">
-            <Button className="rounded-full">Get Started</Button>
+            <Button className="rounded-full cursor-pointer">Get Started</Button>
           </SignInButton>
         </div>
       </div>

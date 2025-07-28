@@ -120,16 +120,32 @@ export function AnalysisOptionsDialog({
 
           {/* Error State */}
           {error && (
-            <Alert className="mb-4">
+            <Alert
+              className="mb-4"
+              variant={
+                error.includes("not a legal document")
+                  ? "destructive"
+                  : undefined
+              }
+            >
               <AlertTriangle className="h-4 w-4" />
-              <AlertDescription className="text-sm">{error}</AlertDescription>
+              <AlertDescription className="text-sm">
+                {error.includes("not a legal document") ? (
+                  <span>
+                    <strong>Not a Legal Document:</strong> <br />
+                    {error}
+                  </span>
+                ) : (
+                  error
+                )}
+              </AlertDescription>
             </Alert>
           )}
 
           {/* Main Form */}
           <div className="grid gap-4 py-2">
             {/* Party Selection */}
-            <div className="grid gap-2">
+            <div className="grid gap-2 w-full">
               <Label htmlFor="party">Analysis Perspective</Label>
               <Select
                 value={formState.party}
@@ -214,25 +230,6 @@ export function AnalysisOptionsDialog({
                       <p>{ANALYSIS_OPTIONS.BIAS.FAVORABLE.label}</p>
                       <p className="text-xs text-muted-foreground">
                         {ANALYSIS_OPTIONS.BIAS.FAVORABLE.description}
-                      </p>
-                    </div>
-                  </Label>
-                </div>
-
-                <div className="flex items-center space-x-2 rounded-md border p-3 hover:bg-muted">
-                  <RadioGroupItem
-                    value={ANALYSIS_OPTIONS.BIAS.RISK.value}
-                    id="risk-bias"
-                  />
-                  <Label
-                    htmlFor="risk-bias"
-                    className="flex flex-1 items-center gap-2 font-normal"
-                  >
-                    <Flag className="h-4 w-4 text-muted-foreground" />
-                    <div>
-                      <p>{ANALYSIS_OPTIONS.BIAS.RISK.label}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {ANALYSIS_OPTIONS.BIAS.RISK.description}
                       </p>
                     </div>
                   </Label>

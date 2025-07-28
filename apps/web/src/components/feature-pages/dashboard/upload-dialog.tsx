@@ -22,8 +22,10 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { uploadDocument } from "@/lib";
+import { useDocument } from "@/lib/document-utils";
 import { useConvex } from "convex/react";
 import { useAuth } from "@clerk/nextjs";
+import { api } from "../../../../convex/_generated/api";
 
 interface UploadDialogProps {
   open: boolean;
@@ -56,15 +58,9 @@ export function UploadDialog({
   };
 
   const validateAndSetFile = (selectedFile: File) => {
-    // Validate file type
-    const validTypes = [
-      "application/pdf",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      "text/plain",
-    ];
-
-    if (!validTypes.includes(selectedFile.type)) {
-      toast.error("Please upload a PDF, DOCX, or TXT file.");
+    // Only allow PDFs
+    if (selectedFile.type !== "application/pdf") {
+      toast.error("Only PDF files are allowed.");
       return;
     }
 
@@ -80,50 +76,87 @@ export function UploadDialog({
 
   const handleUpload = async () => {
     if (!file || !userId) return;
-
+    if (!file) {
+      toast.error("Please select a file to upload.");
+      return;
+    }
     setUploading(true);
     setProgress(0);
     setError(null);
-
     try {
-      // Check file type
-      if (
-        file.type ===
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-      ) {
-        throw new Error(
-          "DOCX files are not supported yet. Please convert to PDF or plain text."
-        );
-      }
-
       // Start progress animation
       const progressInterval = setInterval(() => {
-        setProgress((prevProgress) => {
-          // Cap at 90% until we get confirmation
-          return prevProgress >= 90 ? 90 : prevProgress + 5;
-        });
+        setProgress((prevProgress) =>
+          prevProgress >= 90 ? 90 : prevProgress + 5
+        );
       }, 300);
-
       // Upload to Convex
       const result = await uploadDocument(convex, file, userId);
-
       clearInterval(progressInterval);
-
       if (result.success) {
         setProgress(100);
         setDocumentId(result.documentId);
+        // Show loading toast for legal check
+        const loadingToastId = toast.loading(
+          "Checking if your document is a legal document..."
+        );
+        let tries = 0;
+        let found = false;
+        let content = "";
+        while (tries < 20) {
+          await new Promise((res) => setTimeout(res, 500));
+          try {
+            const doc = await convex.query(api.documents.getDocument, {
+              documentId: result.documentId,
+            });
+            if (doc && doc.content && doc.status === "completed") {
+              found = true;
+              content = doc.content;
+              break;
+            }
+          } catch (err: any) {
+            // If document is deleted, Gemini check failed
+            // Only suppress error if it's a ConvexError: Document not found
+            if (
+              err &&
+              typeof err === "object" &&
+              (err.message?.includes("Document not found") ||
+                (err.data && err.data.message?.includes("Document not found")))
+            ) {
+              found = false;
+              break;
+            } else {
+              // Other errors, show error toast
+              toast.error(
+                err instanceof Error
+                  ? err.message
+                  : "An error occurred during upload."
+              );
+              found = false;
+              break;
+            }
+          }
+          tries++;
+        }
+        toast.dismiss(loadingToastId);
+        if (!found) {
+          toast.error(
+            "This is not a legal document. Please upload a valid legal document."
+          );
+          setTimeout(() => {
+            handleClose();
+          }, 1000);
+          return;
+        }
+        // At this point, upload and processing are done. Show success and close dialog.
         setUploadComplete(true);
-
         toast.success("Your document is being processed.");
-
         if (onUploadComplete) {
           onUploadComplete(result.documentId, file?.name);
         }
-
-        // Auto close after success
         setTimeout(() => {
           handleClose();
-        }, 1500);
+        }, 1200);
       } else {
         setError(result.error || "Upload failed");
         setProgress(0);
@@ -176,15 +209,11 @@ export function UploadDialog({
   const getFileIcon = (fileType: string) => {
     if (fileType.includes("pdf"))
       return <FileText className="h-5 w-5 text-red-500" />;
-    if (fileType.includes("word"))
-      return <File className="h-5 w-5 text-blue-500" />;
     return <File className="h-5 w-5 text-gray-500" />;
   };
 
   const getFileTypeLabel = (fileType: string) => {
     if (fileType.includes("pdf")) return "PDF";
-    if (fileType.includes("word")) return "DOCX";
-    if (fileType.includes("text")) return "TXT";
     return "Unknown";
   };
 
@@ -197,8 +226,8 @@ export function UploadDialog({
             Upload Document
           </DialogTitle>
           <DialogDescription>
-            Upload a legal document for analysis. Supported formats: PDF, DOCX,
-            TXT (max 10MB).
+            Upload a legal document for analysis. Supported format:{" "}
+            <strong>PDF</strong> (max 10MB).
           </DialogDescription>
         </DialogHeader>
 
@@ -241,17 +270,11 @@ export function UploadDialog({
                 ref={fileInputRef}
                 onChange={handleFileChange}
                 className="hidden"
-                accept=".pdf,.docx,.txt"
+                accept=".pdf"
               />
               <div className="mt-4 flex gap-2">
                 <Badge variant="outline" className="text-xs">
                   PDF
-                </Badge>
-                <Badge variant="outline" className="text-xs">
-                  DOCX
-                </Badge>
-                <Badge variant="outline" className="text-xs">
-                  TXT
                 </Badge>
               </div>
             </div>

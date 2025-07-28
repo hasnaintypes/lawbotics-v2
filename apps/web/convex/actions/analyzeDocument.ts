@@ -122,11 +122,16 @@ export const analyzeDocument: ReturnType<typeof action> = action({
         api.prompts.getLegalAnalysisPrompt
       );
 
-      const prompt = promptTemplate
-        .replace(/{{PARTY_PERSPECTIVE}}/g, args.partyPerspective)
-        .replace(/{{ANALYSIS_DEPTH}}/g, "full")
-        .replace(/{{ANALYSIS_BIAS}}/g, args.analysisBias)
-        .replace(/{{DOCUMENT_CONTENT}}/g, document.content);
+      // Add a strict instruction to the prompt to return a special error code if the document is not a legal document, contract, policy, or agreement
+      const strictNote = `IMPORTANT: If the provided document is NOT a legal document, contract, policy, agreement, or similar legal text, respond ONLY with the following JSON: {\"statuscode\": \"NOT_LEGAL_DOCUMENT\", \"note\": \"This PDF is not a legal document, contract, policy, or agreement.\" } and nothing else.`;
+      const prompt = [
+        strictNote,
+        promptTemplate
+          .replace(/{{PARTY_PERSPECTIVE}}/g, args.partyPerspective)
+          .replace(/{{ANALYSIS_DEPTH}}/g, "full")
+          .replace(/{{ANALYSIS_BIAS}}/g, args.analysisBias)
+          .replace(/{{DOCUMENT_CONTENT}}/g, document.content),
+      ].join("\n\n");
 
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
@@ -196,13 +201,36 @@ export const analyzeDocument: ReturnType<typeof action> = action({
         throw new Error("Failed to parse analysis result from response");
       }
 
+      // Check for special error code from AI indicating not a legal document
+      if (
+        analysisResult.statuscode === "NOT_LEGAL_DOCUMENT" ||
+        analysisResult.statusCode === "NOT_LEGAL_DOCUMENT"
+      ) {
+        // Delete the analysis object from Convex
+        await ctx.runMutation(api.analyses.deleteAnalysis, {
+          analysisId,
+        });
+        await ctx.runMutation(api.documents.updateDocument, {
+          documentId: args.documentId,
+          status: "failed",
+          updatedAt: Date.now(),
+        });
+        return {
+          success: false,
+          error:
+            analysisResult.note ||
+            "This PDF is not a legal document, contract, policy, or agreement.",
+          code: "NOT_LEGAL_DOCUMENT",
+        };
+      }
+
       // Add metadata to the result
       const enrichedResult = {
         ...analysisResult,
         metadata: {
           processingTime,
           promptVersion: "2.0",
-          aiModel: "gemini-1.5-flash",
+          aiModel: "gemini-1.5-pro",
           retries: attempts,
         },
         updatedAt: Date.now(),

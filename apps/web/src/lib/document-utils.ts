@@ -1,3 +1,4 @@
+// Gemini legal document check is now handled in the backend (Convex action).
 import type { Id } from "../../convex/_generated/dataModel";
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { api } from "../../convex/_generated/api";

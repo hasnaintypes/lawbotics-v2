@@ -180,6 +180,21 @@ export const deleteDocument = mutation({
       throw new ConvexError("Document not found");
     }
 
+    // Attempt to delete the file from storage if fileUrl exists
+    if (document.fileUrl) {
+      try {
+        // Extract storageId from fileUrl (Convex storage URLs are of the form /api/storage/FILE_ID)
+        const match = document.fileUrl.match(/\/api\/storage\/(.+)$/);
+        if (match && match[1]) {
+          const storageId = match[1];
+          await ctx.storage.delete(storageId);
+        }
+      } catch (err) {
+        // Log but do not block document deletion
+        console.error("Failed to delete file from storage:", err);
+      }
+    }
+
     await ctx.db.delete(args.documentId);
 
     return { success: true };

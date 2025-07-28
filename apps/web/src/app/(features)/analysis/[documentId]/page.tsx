@@ -73,12 +73,14 @@ export default function DocumentAnalysisPage() {
   // Loading state while fetching analysis
   if (isLoading) {
     return (
-      <LoadingSpinner
-        title="Loading Analysis..."
-        description="Please wait while we fetch your document analysis"
-        subtitle={`Parameter: ${paramValue}`}
-        size="lg"
-      />
+      <div className="flex h-[80vh] w-full items-center justify-center">
+        <LoadingSpinner
+          title="Loading Analysis..."
+          description="Please wait while we fetch your document analysis"
+          subtitle={`Parameter: ${paramValue}`}
+          size="lg"
+        />
+      </div>
     );
   }
 
@@ -135,17 +137,19 @@ export default function DocumentAnalysisPage() {
   // Analysis not found or still processing
   if (isAnalysisProcessing) {
     return (
-      <LoadingSpinner
-        title={analysis ? "Analysis in Progress..." : "No Analysis Found"}
-        description={
-          analysis
-            ? "Your document is being analyzed. This page will automatically update when complete."
-            : "No analysis has been started for this document yet."
-        }
-        subtitle={`Document: ${document?.title || "Unknown"}`}
-        size="lg"
-        showDots={!!analysis}
-      />
+      <div className="flex h-[80vh] w-full items-center justify-center">
+        <LoadingSpinner
+          title={analysis ? "Analysis in Progress..." : "No Analysis Found"}
+          description={
+            analysis
+              ? "Your document is being analyzed. This page will automatically update when complete."
+              : "No analysis has been started for this document yet."
+          }
+          subtitle={`Document: ${document?.title || "Unknown"}`}
+          size="lg"
+          showDots={!!analysis}
+        />
+      </div>
     );
   }
 

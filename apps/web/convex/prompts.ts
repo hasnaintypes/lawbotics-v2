@@ -18,11 +18,11 @@ Generate a comprehensive analysis with the following structure in JSON format:
   "document": {
     "id": "string",
     "title": "string",
-    "type": "string",
+    "type": "string", // Must be one of: "contract", "agreement", "nda", "license", "other" (all lowercase)
     "status": "string",
     "parties": ["string"],
-    "effectiveDate": "string (optional) if not mentioned within document(write "not mentioned")",
-    "expirationDate": "string (optional)" if not mentioned within document(write "not mentioned"),
+    "effectiveDate": "string (optional) if not mentioned within document(write 'not mentioned')",
+    "expirationDate": "string (optional)" if not mentioned within document(write 'not mentioned'),
     "value": "string (optional) "
   },
   "riskScore": number,
@@ -68,22 +68,23 @@ Generate a comprehensive analysis with the following structure in JSON format:
   }
 }
 
+
 Important Guidelines:
 1. If analyzing from a specific party's perspective ({{PARTY_PERSPECTIVE}}), focus on their interests.
 2. For {{ANALYSIS_BIAS}} bias:
    - "neutral": Provide balanced analysis without bias
-   - "favorable": Highlight advantages for the selected party
+   - "favorable": Highlight as many advantages as possible for the selected party. Emphasize all potential benefits, strengths, and positive aspects in detail.
    - "risk": Focus on potential risks and issues
 3. For {{ANALYSIS_DEPTH}} depth:
    - "summary": Provide a concise overview with fewer details
    - "full": Provide comprehensive analysis with all details
-4. Format the response as a valid JSON object with the structure shown above.
-5. Extract accurate document metadata including title, type, status, parties, dates, and value.
+4. All red flags, recommendations, action items, and similar sections must be very detailed and written in a way that is easily understandable for a normal human being (avoid legalese, use clear and simple language).
+5. Format the response as a valid JSON object with the structure shown above.
+6. Extract accurate document metadata including title, type, status, parties, dates, and value.
 
 STRICT NAMING REQUIREMENTS:
 - Document "title": Maximum 4 words, use the most essential and descriptive terms only. NO long concatenated titles.
-- Document "type": MUST be lowercase and use standard legal document types like: "contract", "agreement", "license", "nda", "lease", "partnership", "employment", "service", "purchase", "sale", "loan", "merger", "consulting", "maintenance", "confidentiality", "non-compete", "settlement", "amendment", "waiver", "assignment", "deed", "will", "trust", "policy", "permit", "certificate", "invoice", "proposal", "warranty", "guarantee", "franchise", "distribution", "sublease", "mortgage", "security", "bylaws", "charter", "disclosure", "release", "indemnity", "joint venture", "collaboration", "licensing", "development", "commercialization", "manufacturing", "supply", "vendor", "procurement", "outsourcing", "subcontract", "retainer", "engagement"
-- Choose the SINGLE most appropriate type from standard categories. DO NOT create long concatenated types.
+- Document "type": MUST be one of: "contract", "agreement", "nda", "license", "other" (all lowercase). Do NOT use any other type or create long concatenated types.
 - Examples of good titles: "Employment Agreement", "Software License", "Service Contract", "Partnership Agreement"
 - Examples of bad titles: "LICENSE, DEVELOPMENT AND COMMERCIALIZATION AGREEMENT", "COMPREHENSIVE SOFTWARE DEVELOPMENT AND MAINTENANCE SERVICE AGREEMENT"
 6. Calculate a risk score from 0-100 based on the overall risk assessment.
@@ -100,7 +101,6 @@ Return ONLY the JSON object with no additional text, explanations, or markdown f
 `;
   },
 });
-
 
 /**
  * Retrieves the standardized prompt template for extracting parties from legal documents
@@ -121,6 +121,8 @@ STRICT REQUIREMENTS:
 - Replace any null values with "N/A"
 - Remove any excessive capitalization or formatting
 - Use proper title case for party names
+- All party names MUST be distinct. If two names refer to the same entity (e.g., different chapters or legal suffixes), deduplicate and include only the most general or primary name.
+- Return NO MORE THAN 2 or 3 distinct parties. If more are found, deduplicate and select only the main parties to the agreement or legal document.
 
 Examples of good party names:
 - "John Smith"
@@ -132,6 +134,7 @@ Examples of bad party names:
 - "JOHN SMITH, ESQ., ATTORNEY AT LAW"
 - "ABC CORPORATION, A DELAWARE CORPORATION"
 - "THE CITY OF NEW YORK, A MUNICIPAL CORPORATION"
+- "National Football League Alumni - Northern California Chapter" (should be deduplicated with "National Football League Alumni, Inc.")
 
 Document to analyze:
 {{DOCUMENT_CONTENT}}

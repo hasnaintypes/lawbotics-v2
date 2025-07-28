@@ -73,12 +73,6 @@ export const ANALYSIS_OPTIONS = {
       description: "Brief overview with key insights",
       icon: "Eye",
     },
-    RISK_FOCUSED: {
-      value: "risk-focused" as const,
-      label: "Risk Assessment",
-      description: "Focus on risks, red flags, and potential issues",
-      icon: "AlertTriangle",
-    },
     NEUTRAL: {
       value: "neutral" as const,
       label: "Neutral Review",

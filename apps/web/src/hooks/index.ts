@@ -22,8 +22,11 @@ export { useFormattedUser } from "./use-formatted-user";
 export { useAnalysisFetch } from "./use-analysis-fetch";
 export { useChat } from "./use-chat";
 export { useContractAnalytics } from "./use-contract-analytics";
-export { useContractTemplates } from "./use-contract-templates";
 export { useContracts } from "./use-contracts";
+export { usePdfGeneration } from "./use-pdf-generation";
+export { useContractCreation } from "./use-contract-creation";
+export { useConvexUserId } from "./use-convex-user-id";
+export { useContractEdit } from "./use-contract-edit";
 /**
  * Re-export types for better developer experience
  */

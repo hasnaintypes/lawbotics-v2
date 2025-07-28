@@ -1,3 +1,4 @@
+"use client";
 import { useMemo, useEffect } from "react";
 import { useQuery } from "convex/react";
 import { useUser } from "@clerk/nextjs";

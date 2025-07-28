@@ -148,7 +148,7 @@ export default function DashboardPage() {
 
   const handleCreateContract = () => {
     // Navigate to contract creation page
-    router.push("/contract");
+    router.push("/contracts");
   };
 
   // Render pagination items using the pagination hook

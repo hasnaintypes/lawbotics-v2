@@ -25,6 +25,7 @@ export function useContracts(
   const createContract = useMutation(api.contracts.createContract);
   const updateContract = useMutation(api.contracts.updateContract);
   const deleteContract = useMutation(api.contracts.deleteContract);
+  const editContract = useMutation(api.contracts.editContract);
 
   /**
    * Creates a new contract
@@ -79,6 +80,23 @@ export function useContracts(
     }
   };
 
+  /**
+   * Edits (creates a new version of) a contract
+   * @param {Object} contractData - Contract data (must include id)
+   * @returns {Promise<Id<"contracts"> | null>} New contract version ID
+   */
+  const handleEditContract = async (
+    contractData: any
+  ): Promise<Id<"contracts"> | null> => {
+    try {
+      const newVersionId = await editContract(contractData);
+      return newVersionId;
+    } catch (error) {
+      console.error("Failed to edit contract:", error);
+      return null;
+    }
+  };
+
   return {
     // Data
     contracts: contractsData?.contracts || [],
@@ -90,6 +108,7 @@ export function useContracts(
     createContract: handleCreateContract,
     updateContract: handleUpdateContract,
     deleteContract: handleDeleteContract,
+    editContract: handleEditContract,
   };
 }
 

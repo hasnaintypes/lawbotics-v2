@@ -1,16 +1,8 @@
-import { Id } from "./_generated/dataModel";
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 
 /**
  * Query to get all contracts with pagination and filtering
- * @param {Object} args - Query arguments
- * @param {number} args.limit - Number of contracts to return
- * @param {number} args.offset - Number of contracts to skip
- * @param {string} args.status - Filter by contract status
- * @param {string} args.type - Filter by contract type
- * @param {string} args.authorId - Filter by author ID
- * @returns {Promise<Object>} Contracts and total count
  */
 export const getContracts = query({
   args: {
@@ -37,16 +29,22 @@ export const getContracts = query({
     }
 
     const contracts = await query.order("desc").take(limit + offset);
-
     const paginatedContracts = contracts.slice(offset, offset + limit);
 
     // Get author information for each contract
     const contractsWithAuthors = await Promise.all(
       paginatedContracts.map(async (contract) => {
         const author = await ctx.db.get(contract.authorId);
+        const assignedUser = contract.assignedTo
+          ? await ctx.db.get(contract.assignedTo)
+          : null;
+
         return {
           ...contract,
           author: author ? { name: author.name, email: author.email } : null,
+          assignedUser: assignedUser
+            ? { name: assignedUser.name, email: assignedUser.email }
+            : null,
         };
       })
     );
@@ -61,9 +59,6 @@ export const getContracts = query({
 
 /**
  * Query to get a single contract by ID
- * @param {Object} args - Query arguments
- * @param {string} args.id - Contract ID
- * @returns {Promise<Object|null>} Contract with related data
  */
 export const getContract = query({
   args: { id: v.id("contracts") },
@@ -73,28 +68,9 @@ export const getContract = query({
 
     // Get author information
     const author = await ctx.db.get(contract.authorId);
-
-    // Get assigned user information
     const assignedUser = contract.assignedTo
       ? await ctx.db.get(contract.assignedTo)
       : null;
-
-    // Get template information
-    const template = contract.templateId
-      ? await ctx.db.get(contract.templateId as Id<"contract_templates">)
-      : null;
-
-    // Get contract parties
-    const parties = await ctx.db
-      .query("contract_parties")
-      .withIndex("by_contract", (q) => q.eq("contractId", args.id))
-      .collect();
-
-    // Get contract attachments
-    const attachments = await ctx.db
-      .query("contract_attachments")
-      .withIndex("by_contract", (q) => q.eq("contractId", args.id))
-      .collect();
 
     return {
       ...contract,
@@ -102,17 +78,12 @@ export const getContract = query({
       assignedUser: assignedUser
         ? { name: assignedUser.name, email: assignedUser.email }
         : null,
-      template: template ? { name: template.name, type: template.type } : null,
-      parties,
-      attachments,
     };
   },
 });
 
 /**
  * Mutation to create a new contract
- * @param {Object} args - Contract data
- * @returns {Promise<string>} Created contract ID
  */
 export const createContract = mutation({
   args: {
@@ -132,7 +103,6 @@ export const createContract = mutation({
     ),
     content: v.string(),
     authorId: v.id("users"),
-    templateId: v.optional(v.id("contract_templates")),
     priority: v.optional(
       v.union(
         v.literal("low"),
@@ -141,35 +111,70 @@ export const createContract = mutation({
         v.literal("urgent")
       )
     ),
-    tags: v.optional(v.array(v.string())),
-    startDate: v.optional(v.number()),
-    endDate: v.optional(v.number()),
     value: v.optional(v.number()),
     currency: v.optional(v.string()),
+    startDate: v.optional(v.number()),
+    endDate: v.optional(v.number()),
+    expirationDate: v.optional(v.number()),
+    autoRenewal: v.optional(v.boolean()),
+    renewalPeriod: v.optional(v.number()),
+    notificationPeriod: v.optional(v.number()),
+    governingLaw: v.optional(v.string()),
+    jurisdiction: v.optional(v.string()),
+    requiresNotarization: v.optional(v.boolean()),
+    allowsAmendments: v.optional(v.boolean()),
+    confidential: v.optional(v.boolean()),
+    parties: v.array(
+      v.object({
+        id: v.string(),
+        type: v.union(
+          v.literal("client"),
+          v.literal("vendor"),
+          v.literal("partner"),
+          v.literal("employee"),
+          v.literal("contractor"),
+          v.literal("other")
+        ),
+        name: v.string(),
+        email: v.optional(v.string()),
+        phone: v.optional(v.string()),
+        address: v.optional(v.string()),
+        role: v.string(),
+      })
+    ),
+    clauses: v.array(
+      v.object({
+        id: v.string(),
+        title: v.string(),
+        content: v.string(),
+        order: v.number(),
+      })
+    ),
+    tags: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
     const now = Date.now();
 
+    // Validate that parties and clauses are not empty
+    if (!args.parties || args.parties.length === 0) {
+      throw new Error("At least one party is required to create a contract.");
+    }
+    if (!args.clauses || args.clauses.length === 0) {
+      throw new Error("At least one clause is required to create a contract.");
+    }
+
     const contractId = await ctx.db.insert("contracts", {
       ...args,
-      version: "1.0",
+      version: 1,
       status: "draft",
       priority: args.priority || "medium",
-      autoRenewal: false,
+      autoRenewal: args.autoRenewal || false,
+      requiresNotarization: args.requiresNotarization || false,
+      allowsAmendments: args.allowsAmendments || true,
+      confidential: args.confidential || false,
       tags: args.tags || [],
       createdAt: now,
       updatedAt: now,
-    });
-
-    // Create initial revision
-    await ctx.db.insert("contract_revisions", {
-      contractId,
-      version: "1.0",
-      content: args.content,
-      summary: "Initial contract creation",
-      changes: [],
-      authorId: args.authorId,
-      createdAt: now,
     });
 
     return contractId;
@@ -177,9 +182,108 @@ export const createContract = mutation({
 });
 
 /**
+ * Mutation to create a new version (edit) of a contract
+ * Increments version, sets parentContractId, and copies all fields
+ */
+
+export const editContract = mutation({
+  args: {
+    id: v.id("contracts"),
+    // All editable fields (same as createContract except authorId is optional)
+    name: v.string(),
+    description: v.optional(v.string()),
+    type: v.union(
+      v.literal("nda"),
+      v.literal("service_agreement"),
+      v.literal("employment"),
+      v.literal("lease"),
+      v.literal("purchase"),
+      v.literal("partnership"),
+      v.literal("licensing"),
+      v.literal("consulting"),
+      v.literal("vendor"),
+      v.literal("custom")
+    ),
+    content: v.string(),
+    priority: v.optional(
+      v.union(
+        v.literal("low"),
+        v.literal("medium"),
+        v.literal("high"),
+        v.literal("urgent")
+      )
+    ),
+    value: v.optional(v.number()),
+    currency: v.optional(v.string()),
+    startDate: v.optional(v.number()),
+    endDate: v.optional(v.number()),
+    expirationDate: v.optional(v.number()),
+    autoRenewal: v.optional(v.boolean()),
+    renewalPeriod: v.optional(v.number()),
+    notificationPeriod: v.optional(v.number()),
+    governingLaw: v.optional(v.string()),
+    jurisdiction: v.optional(v.string()),
+    requiresNotarization: v.optional(v.boolean()),
+    allowsAmendments: v.optional(v.boolean()),
+    confidential: v.optional(v.boolean()),
+    parties: v.array(
+      v.object({
+        id: v.string(),
+        type: v.union(
+          v.literal("client"),
+          v.literal("vendor"),
+          v.literal("partner"),
+          v.literal("employee"),
+          v.literal("contractor"),
+          v.literal("other")
+        ),
+        name: v.string(),
+        email: v.optional(v.string()),
+        phone: v.optional(v.string()),
+        address: v.optional(v.string()),
+        role: v.string(),
+      })
+    ),
+    clauses: v.array(
+      v.object({
+        id: v.string(),
+        title: v.string(),
+        content: v.string(),
+        order: v.number(),
+      })
+    ),
+    tags: v.optional(v.array(v.string())),
+  },
+  handler: async (ctx, args) => {
+    const now = Date.now();
+    const existing = await ctx.db.get(args.id);
+    if (!existing) throw new Error("Contract not found");
+
+    // Remove 'id' from args before inserting
+    const { id, ...rest } = args;
+    // Increment version, set parentContractId
+    const newVersion = (existing.version || 1) + 1;
+    const contractId = await ctx.db.insert("contracts", {
+      ...rest,
+      authorId: existing.authorId,
+      version: newVersion,
+      parentContractId: id,
+      status: "draft",
+      priority: args.priority || "medium",
+      autoRenewal: args.autoRenewal || false,
+      requiresNotarization: args.requiresNotarization || false,
+      allowsAmendments: args.allowsAmendments || true,
+      confidential: args.confidential || false,
+      tags: args.tags || [],
+      createdAt: now,
+      updatedAt: now,
+    });
+    return contractId;
+  },
+});
+
+/**
  * Mutation to update an existing contract
- * @param {Object} args - Contract update data
- * @returns {Promise<string>} Updated contract ID
  */
 export const updateContract = mutation({
   args: {
@@ -208,13 +312,53 @@ export const updateContract = mutation({
         v.literal("urgent")
       )
     ),
-    tags: v.optional(v.array(v.string())),
-    startDate: v.optional(v.number()),
-    endDate: v.optional(v.number()),
     value: v.optional(v.number()),
     currency: v.optional(v.string()),
+    startDate: v.optional(v.number()),
+    endDate: v.optional(v.number()),
+    expirationDate: v.optional(v.number()),
+    autoRenewal: v.optional(v.boolean()),
+    renewalPeriod: v.optional(v.number()),
+    notificationPeriod: v.optional(v.number()),
+    governingLaw: v.optional(v.string()),
+    jurisdiction: v.optional(v.string()),
+    requiresNotarization: v.optional(v.boolean()),
+    allowsAmendments: v.optional(v.boolean()),
+    confidential: v.optional(v.boolean()),
+    parties: v.optional(
+      v.array(
+        v.object({
+          id: v.string(),
+          type: v.union(
+            v.literal("client"),
+            v.literal("vendor"),
+            v.literal("partner"),
+            v.literal("employee"),
+            v.literal("contractor"),
+            v.literal("other")
+          ),
+          name: v.string(),
+          email: v.optional(v.string()),
+          phone: v.optional(v.string()),
+          address: v.optional(v.string()),
+          role: v.string(),
+        })
+      )
+    ),
+    clauses: v.optional(
+      v.array(
+        v.object({
+          id: v.string(),
+          title: v.string(),
+          content: v.string(),
+          order: v.number(),
+        })
+      )
+    ),
+    tags: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
+    // NOTE: If updating parties or clauses, the client must send the full updated array, as this will overwrite the existing array in the contract.
     const { id, ...updates } = args;
     const now = Date.now();
 
@@ -235,9 +379,6 @@ export const updateContract = mutation({
 
 /**
  * Mutation to delete a contract
- * @param {Object} args - Delete arguments
- * @param {string} args.id - Contract ID to delete
- * @returns {Promise<void>}
  */
 export const deleteContract = mutation({
   args: { id: v.id("contracts") },
@@ -247,57 +388,27 @@ export const deleteContract = mutation({
       throw new Error("Contract not found");
     }
 
-    // Delete related records
-    const parties = await ctx.db
-      .query("contract_parties")
-      .withIndex("by_contract", (q) => q.eq("contractId", args.id))
-      .collect();
-
-    const revisions = await ctx.db
-      .query("contract_revisions")
-      .withIndex("by_contract", (q) => q.eq("contractId", args.id))
-      .collect();
-
-    const approvals = await ctx.db
-      .query("contract_approvals")
-      .withIndex("by_contract", (q) => q.eq("contractId", args.id))
-      .collect();
-
-    const attachments = await ctx.db
-      .query("contract_attachments")
-      .withIndex("by_contract", (q) => q.eq("contractId", args.id))
-      .collect();
-
-    // Delete all related records
-    await Promise.all([
-      ...parties.map((party) => ctx.db.delete(party._id)),
-      ...revisions.map((revision) => ctx.db.delete(revision._id)),
-      ...approvals.map((approval) => ctx.db.delete(approval._id)),
-      ...attachments.map((attachment) => ctx.db.delete(attachment._id)),
-    ]);
-
-    // Delete the contract
     await ctx.db.delete(args.id);
   },
 });
 
 /**
  * Query to get contract analytics
- * @param {Object} args - Analytics arguments
- * @param {string} args.startDate - Start date for analytics
- * @param {string} args.endDate - End date for analytics
- * @returns {Promise<Object>} Analytics data
  */
 export const getContractAnalytics = query({
   args: {
     startDate: v.optional(v.string()),
     endDate: v.optional(v.string()),
+    authorId: v.optional(v.id("users")),
   },
   handler: async (ctx, args) => {
-    const { startDate, endDate } = args;
-
-    // Get total contracts count
-    const totalContracts = await ctx.db.query("contracts").collect();
+    let contractsQuery = ctx.db.query("contracts");
+    if (args.authorId) {
+      contractsQuery = contractsQuery.filter((q) =>
+        q.eq(q.field("authorId"), args.authorId)
+      );
+    }
+    const totalContracts = await contractsQuery.collect();
 
     // Get active contracts
     const activeContracts = totalContracts.filter(

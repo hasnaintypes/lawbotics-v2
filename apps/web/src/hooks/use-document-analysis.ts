@@ -1,3 +1,4 @@
+"use client";
 import { useState, useCallback, useEffect } from "react";
 import { useAction, useQuery } from "convex/react";
 import { useRouter } from "next/navigation";
@@ -119,6 +120,7 @@ export function useDocumentAnalysis(onAnalysisComplete?: () => void) {
         setWorkflowState("ready_for_options");
         setIsAnalysisOptionsOpen(true);
       } else {
+        console.log(result.error)
         toast.error(result.error || "Failed to prepare document for analysis");
         setWorkflowState("idle");
       }

@@ -1,3 +1,4 @@
+"use client";
 import { useRouter } from "next/navigation";
 import type { Id } from "../../convex/_generated/dataModel";
 

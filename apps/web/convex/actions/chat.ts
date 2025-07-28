@@ -71,7 +71,7 @@ export const chat = action({
             .join("\n")
         : "No previous conversation.";
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     // Get the centralized chat prompt template
     const promptTemplate = await ctx.runQuery(api.prompts.getChatPrompt, {});

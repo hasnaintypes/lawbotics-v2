@@ -94,11 +94,7 @@ export default defineSchema({
       v.literal("failed")
     ),
     partyPerspective: v.optional(v.string()),
-    analysisBias: v.union(
-      v.literal("neutral"),
-      v.literal("favorable"),
-      v.literal("risk")
-    ),
+    analysisBias: v.union(v.literal("neutral"), v.literal("favorable")),
     document: v.optional(
       v.object({
         id: v.string(),
@@ -197,6 +193,9 @@ export default defineSchema({
    * Contracts table - stores contract documents and metadata
    *
    */
+  /**
+   * Contracts table - stores contract documents and metadata
+   */
   contracts: defineTable({
     /** Contract title/name */
     name: v.string(),
@@ -227,7 +226,7 @@ export default defineSchema({
       v.literal("archived")
     ),
     /** Contract version number */
-    version: v.string(),
+    version: v.number(),
     /** Contract priority level */
     priority: v.union(
       v.literal("low"),
@@ -251,6 +250,18 @@ export default defineSchema({
     autoRenewal: v.boolean(),
     /** Renewal period in days */
     renewalPeriod: v.optional(v.number()),
+    /** Notification period in days */
+    notificationPeriod: v.optional(v.number()),
+    /** Governing law */
+    governingLaw: v.optional(v.string()),
+    /** Jurisdiction */
+    jurisdiction: v.optional(v.string()),
+    /** Requires notarization flag */
+    requiresNotarization: v.boolean(),
+    /** Allows amendments flag */
+    allowsAmendments: v.boolean(),
+    /** Confidential flag */
+    confidential: v.boolean(),
     /** Contract author user ID */
     authorId: v.id("users"),
     /** Assigned lawyer/manager user ID */
@@ -265,6 +276,36 @@ export default defineSchema({
     createdAt: v.number(),
     /** Last contract update timestamp */
     updatedAt: v.number(),
+
+    // Embedded parties
+    parties: v.array(
+      v.object({
+        id: v.string(),
+        type: v.union(
+          v.literal("client"),
+          v.literal("vendor"),
+          v.literal("partner"),
+          v.literal("employee"),
+          v.literal("contractor"),
+          v.literal("other")
+        ),
+        name: v.string(),
+        email: v.optional(v.string()),
+        phone: v.optional(v.string()),
+        address: v.optional(v.string()),
+        role: v.string(),
+      })
+    ),
+
+    // Embedded clauses
+    clauses: v.array(
+      v.object({
+        id: v.string(),
+        title: v.string(),
+        content: v.string(),
+        order: v.number(),
+      })
+    ),
   })
     .index("by_author", ["authorId"])
     .index("by_status", ["status"])
@@ -273,213 +314,6 @@ export default defineSchema({
     .index("by_template", ["templateId"])
     .index("by_expiration", ["expirationDate"])
     .index("by_created", ["createdAt"]),
-
-  /**
-   * Contract templates table - stores reusable contract templates
-   */
-  contract_templates: defineTable({
-    /** Template name */
-    name: v.string(),
-    /** Template description */
-    description: v.string(),
-    /** Template category */
-    category: v.string(),
-    /** Template type */
-    type: v.union(
-      v.literal("nda"),
-      v.literal("service_agreement"),
-      v.literal("employment"),
-      v.literal("lease"),
-      v.literal("purchase"),
-      v.literal("partnership"),
-      v.literal("licensing"),
-      v.literal("consulting"),
-      v.literal("vendor"),
-      v.literal("custom")
-    ),
-    /** Template content/body */
-    content: v.string(),
-    /** Template variables/placeholders */
-    variables: v.array(
-      v.object({
-        name: v.string(),
-        type: v.union(
-          v.literal("text"),
-          v.literal("number"),
-          v.literal("date"),
-          v.literal("select")
-        ),
-        required: v.boolean(),
-        placeholder: v.optional(v.string()),
-        options: v.optional(v.array(v.string())),
-      })
-    ),
-    /** Template usage count */
-    usageCount: v.number(),
-    /** Whether template is active */
-    isActive: v.boolean(),
-    /** Template author user ID */
-    authorId: v.id("users"),
-    /** Template creation timestamp */
-    createdAt: v.number(),
-    /** Last template update timestamp */
-    updatedAt: v.number(),
-  })
-    .index("by_category", ["category"])
-    .index("by_type", ["type"])
-    .index("by_author", ["authorId"])
-    .index("by_usage", ["usageCount"]),
-
-  /**
-   * Contract parties table - stores parties involved in contracts
-   */
-  contract_parties: defineTable({
-    /** Associated contract ID */
-    contractId: v.id("contracts"),
-    /** Party type */
-    type: v.union(
-      v.literal("client"),
-      v.literal("vendor"),
-      v.literal("partner"),
-      v.literal("employee"),
-      v.literal("contractor"),
-      v.literal("other")
-    ),
-    /** Party name (individual or organization) */
-    name: v.string(),
-    /** Party email */
-    email: v.optional(v.string()),
-    /** Party phone */
-    phone: v.optional(v.string()),
-    /** Party address */
-    address: v.optional(v.string()),
-    /** Party role in contract */
-    role: v.string(),
-    /** Whether party has signed */
-    hasSigned: v.boolean(),
-    /** Signature date */
-    signedAt: v.optional(v.number()),
-    /** Party creation timestamp */
-    createdAt: v.number(),
-  })
-    .index("by_contract", ["contractId"])
-    .index("by_type", ["type"]),
-
-  /**
-   * Contract revisions table - tracks contract version history
-   */
-  contract_revisions: defineTable({
-    /** Associated contract ID */
-    contractId: v.id("contracts"),
-    /** Revision version */
-    version: v.string(),
-    /** Revision content */
-    content: v.string(),
-    /** Revision summary/notes */
-    summary: v.string(),
-    /** Changes made in this revision */
-    changes: v.array(
-      v.object({
-        field: v.string(),
-        oldValue: v.optional(v.string()),
-        newValue: v.string(),
-        description: v.optional(v.string()),
-      })
-    ),
-    /** Revision author user ID */
-    authorId: v.id("users"),
-    /** Revision creation timestamp */
-    createdAt: v.number(),
-  })
-    .index("by_contract", ["contractId"])
-    .index("by_author", ["authorId"])
-    .index("by_version", ["contractId", "version"]),
-
-  /**
-   * Contract approvals table - tracks approval workflow
-   */
-  contract_approvals: defineTable({
-    /** Associated contract ID */
-    contractId: v.id("contracts"),
-    /** Approver user ID */
-    approverId: v.id("users"),
-    /** Approval status */
-    status: v.union(
-      v.literal("pending"),
-      v.literal("approved"),
-      v.literal("rejected"),
-      v.literal("withdrawn")
-    ),
-    /** Approval comments */
-    comments: v.optional(v.string()),
-    /** Approval due date */
-    dueDate: v.optional(v.number()),
-    /** Approval completion timestamp */
-    completedAt: v.optional(v.number()),
-    /** Approval request timestamp */
-    createdAt: v.number(),
-  })
-    .index("by_contract", ["contractId"])
-    .index("by_approver", ["approverId"])
-    .index("by_status", ["status"]),
-
-  /**
-   * Contract attachments table - stores contract-related files
-   */
-  contract_attachments: defineTable({
-    /** Associated contract ID */
-    contractId: v.id("contracts"),
-    /** File name */
-    fileName: v.string(),
-    /** File type/extension */
-    fileType: v.string(),
-    /** File size in bytes */
-    fileSize: v.number(),
-    /** File storage URL */
-    fileUrl: v.string(),
-    /** Attachment description */
-    description: v.optional(v.string()),
-    /** Uploader user ID */
-    uploadedBy: v.id("users"),
-    /** Upload timestamp */
-    createdAt: v.number(),
-  })
-    .index("by_contract", ["contractId"])
-    .index("by_uploader", ["uploadedBy"]),
-
-  /**
-   * Contract notifications table - stores system notifications
-   */
-  contract_notifications: defineTable({
-    /** Associated contract ID */
-    contractId: v.optional(v.id("contracts")),
-    /** Recipient user ID */
-    userId: v.id("users"),
-    /** Notification type */
-    type: v.union(
-      v.literal("contract_created"),
-      v.literal("contract_updated"),
-      v.literal("approval_required"),
-      v.literal("contract_approved"),
-      v.literal("contract_rejected"),
-      v.literal("contract_expiring"),
-      v.literal("contract_expired"),
-      v.literal("signature_required"),
-      v.literal("contract_signed")
-    ),
-    /** Notification title */
-    title: v.string(),
-    /** Notification message */
-    message: v.string(),
-    /** Whether notification has been read */
-    isRead: v.boolean(),
-    /** Notification creation timestamp */
-    createdAt: v.number(),
-  })
-    .index("by_user", ["userId"])
-    .index("by_contract", ["contractId"])
-    .index("by_type", ["type"])
-    .index("by_read_status", ["userId", "isRead"]),
 
   /**
    * Contract analytics table - stores analytics and metrics

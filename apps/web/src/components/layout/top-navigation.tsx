@@ -51,8 +51,11 @@ export function TopNavigation({
   const { user } = useUser();
   const { signOut } = useClerk();
   const [searchOpen, setSearchOpen] = React.useState(false);
+  const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
+    setMounted(true);
+
     const down = (e: KeyboardEvent) => {
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
@@ -63,7 +66,8 @@ export function TopNavigation({
     return () => document.removeEventListener("keydown", down);
   }, []);
 
-  if (!user) return null;
+  // Only render after mount and when user is available
+  if (!mounted || !user) return null;
 
   const firstName = user.firstName || "";
   const lastName = user.lastName || "";
@@ -75,9 +79,9 @@ export function TopNavigation({
         {/* Logo and Brand */}
         <div className="flex items-center gap-4">
           <a
-            href="/"
+            href="/dashboard"
             className="flex items-center space-x-2"
-            aria-label="Go to homepage"
+            aria-label="Go to dashboard"
           >
             <Logo />
           </a>
