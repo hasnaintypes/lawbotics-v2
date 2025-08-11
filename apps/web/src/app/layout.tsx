@@ -135,20 +135,22 @@ interface RootLayoutProps {
  */
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <ConvexProvider>{children}</ConvexProvider>
-        </ThemeProvider>
+    <ClerkProvider>
+      <html lang="en" suppressHydrationWarning>
+        <body className={inter.className}>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <ConvexProvider>{children}</ConvexProvider>
+          </ThemeProvider>
 
-        {/* Global notification system */}
-        <Toaster />
-      </body>
-    </html>
+          {/* Global notification system */}
+          <Toaster />
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

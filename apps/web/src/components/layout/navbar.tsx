@@ -4,8 +4,9 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { MoonStar, Sun } from "lucide-react";
 import Logo from "@/components/shared/logo";
-import { SignInButton } from "@clerk/nextjs";
+import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
 import { useThemeToggle, useScrollDetection } from "@/hooks";
+import Link from "next/link";
 
 /**
  * Navigation bar component for the application
@@ -13,12 +14,13 @@ import { useThemeToggle, useScrollDetection } from "@/hooks";
  * This component renders a sticky navigation header with the following features:
  * - Logo and branding
  * - Theme toggle button (light/dark mode)
- * - Sign in button
+ * - Authentication UI (sign in button for guests, user button for authenticated users)
  * - Responsive design with scroll-based styling
  * - Backdrop blur effect when scrolled
  *
  * The navbar automatically adjusts its appearance based on scroll position,
- * adding a border and enhanced styling when the user scrolls down.
+ * adding a border and enhanced styling when the user scrolls down. Authentication
+ * is handled through page-based navigation (not modals) for better UX and SEO.
  *
  * @example
  * ```tsx
@@ -32,11 +34,12 @@ import { useThemeToggle, useScrollDetection } from "@/hooks";
  * }
  * ```
  *
- * @returns The navigation bar component
+ * @returns The navigation bar component with authentication-aware UI
  */
 export function Navbar() {
   const { mounted, resolvedTheme, toggleTheme } = useThemeToggle();
   const { isScrolled } = useScrollDetection({ threshold: 10 });
+  const { isSignedIn } = useUser();
 
   // Prevent hydration mismatch by not rendering until mounted
   if (!mounted) return <div className="h-16" />; // Placeholder to prevent layout shift
@@ -76,10 +79,30 @@ export function Navbar() {
             )}
           </button>
 
-          {/* Sign in button */}
-          <SignInButton mode="modal">
-            <Button className="rounded-full cursor-pointer">Get Started</Button>
-          </SignInButton>
+          {/* Authentication section */}
+          {isSignedIn ? (
+            <UserButton
+              appearance={{
+                elements: {
+                  avatarBox: "h-8 w-8",
+                  userButtonPopoverCard: "shadow-lg border",
+                },
+              }}
+            />
+          ) : (
+            <div className="flex items-center gap-2">
+              <Link href="/sign-in">
+                <Button variant="ghost" size="sm">
+                  Sign In
+                </Button>
+              </Link>
+              <Link href="/sign-up">
+                <Button className="rounded-full cursor-pointer" size="sm">
+                  Get Started
+                </Button>
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </header>

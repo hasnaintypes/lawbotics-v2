@@ -60,7 +60,7 @@ export default function Hero() {
 
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row cursor-pointer">
             <Button size="lg" asChild>
-              <Link href="/signup">Get Started Free</Link>
+              <Link href="/sign-up">Get Started Free</Link>
             </Button>
             <Button size="lg" variant="outline" asChild>
               <Link href="/demo">See Demo</Link>
