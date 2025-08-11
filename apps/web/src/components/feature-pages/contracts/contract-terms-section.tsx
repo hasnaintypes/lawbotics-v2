@@ -1,18 +1,31 @@
-"use client"
+"use client";
 
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Settings } from "lucide-react"
-import type { ContractFormData } from "@/types"
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import { Settings, CalendarIcon } from "lucide-react";
+import type { ContractFormData } from "@/types";
+import { formatDateConsistent } from "@/lib/date-utils";
 
 interface ContractTermsSectionProps {
   /** Form data */
-  formData: ContractFormData
+  formData: ContractFormData;
   /** Form update handler */
-  onUpdate: (updates: Partial<ContractFormData>) => void
+  onUpdate: (updates: Partial<ContractFormData>) => void;
 }
 
 /**
@@ -20,7 +33,10 @@ interface ContractTermsSectionProps {
  * @param {ContractTermsSectionProps} props - Component props
  * @returns {JSX.Element} Terms and conditions form
  */
-export function ContractTermsSection({ formData, onUpdate }: ContractTermsSectionProps) {
+export function ContractTermsSection({
+  formData,
+  onUpdate,
+}: ContractTermsSectionProps) {
   return (
     <div className="space-y-6">
       <h3 className="text-lg font-medium flex items-center gap-2">
@@ -39,7 +55,9 @@ export function ContractTermsSection({ formData, onUpdate }: ContractTermsSectio
               <Checkbox
                 id="autoRenewal"
                 checked={formData.autoRenewal}
-                onCheckedChange={(checked) => onUpdate({ autoRenewal: checked as boolean })}
+                onCheckedChange={(checked) =>
+                  onUpdate({ autoRenewal: checked as boolean })
+                }
               />
               <Label htmlFor="autoRenewal">Enable automatic renewal</Label>
             </div>
@@ -49,7 +67,12 @@ export function ContractTermsSection({ formData, onUpdate }: ContractTermsSectio
                 <Input
                   type="number"
                   value={formData.renewalPeriod || ""}
-                  onChange={(e) => onUpdate({ renewalPeriod: Number.parseInt(e.target.value) || undefined })}
+                  onChange={(e) =>
+                    onUpdate({
+                      renewalPeriod:
+                        Number.parseInt(e.target.value) || undefined,
+                    })
+                  }
                   placeholder="30"
                   className="mt-1.5 rounded-xl"
                 />
@@ -66,18 +89,51 @@ export function ContractTermsSection({ formData, onUpdate }: ContractTermsSectio
           <CardContent className="space-y-4">
             <div>
               <Label>Expiration Date</Label>
-              <Input
-                type="date"
-                value={formData.expirationDate}
-                onChange={(e) => onUpdate({ expirationDate: e.target.value })}
-                className="mt-1.5 rounded-xl"
-              />
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    className="mt-1.5 rounded-xl w-full text-left border border-input px-3 py-2 bg-background hover:bg-accent/50 transition-colors h-10 flex items-center justify-between"
+                  >
+                    {formData.expirationDate ? (
+                      new Date(formData.expirationDate).toLocaleDateString()
+                    ) : (
+                      <span className="text-muted-foreground">
+                        Pick expiration date
+                      </span>
+                    )}
+                    <CalendarIcon className="h-4 w-4 opacity-50" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={
+                      formData.expirationDate
+                        ? new Date(formData.expirationDate)
+                        : undefined
+                    }
+                    onSelect={(date) => {
+                      if (date) {
+                        onUpdate({
+                          expirationDate: formatDateConsistent(date.getTime()),
+                        });
+                      } else {
+                        onUpdate({ expirationDate: "" });
+                      }
+                    }}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
             <div>
               <Label>Notification Period (days before expiration)</Label>
               <Select
                 value={formData.notificationPeriod?.toString()}
-                onValueChange={(value) => onUpdate({ notificationPeriod: Number.parseInt(value) })}
+                onValueChange={(value) =>
+                  onUpdate({ notificationPeriod: Number.parseInt(value) })
+                }
               >
                 <SelectTrigger className="mt-1.5 rounded-xl">
                   <SelectValue placeholder="Select notification period" />
@@ -127,15 +183,21 @@ export function ContractTermsSection({ formData, onUpdate }: ContractTermsSectio
               <Checkbox
                 id="requiresNotarization"
                 checked={formData.requiresNotarization}
-                onCheckedChange={(checked) => onUpdate({ requiresNotarization: checked as boolean })}
+                onCheckedChange={(checked) =>
+                  onUpdate({ requiresNotarization: checked as boolean })
+                }
               />
-              <Label htmlFor="requiresNotarization">Requires notarization</Label>
+              <Label htmlFor="requiresNotarization">
+                Requires notarization
+              </Label>
             </div>
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="allowsAmendments"
                 checked={formData.allowsAmendments}
-                onCheckedChange={(checked) => onUpdate({ allowsAmendments: checked as boolean })}
+                onCheckedChange={(checked) =>
+                  onUpdate({ allowsAmendments: checked as boolean })
+                }
               />
               <Label htmlFor="allowsAmendments">Allows amendments</Label>
             </div>
@@ -143,7 +205,9 @@ export function ContractTermsSection({ formData, onUpdate }: ContractTermsSectio
               <Checkbox
                 id="confidential"
                 checked={formData.confidential}
-                onCheckedChange={(checked) => onUpdate({ confidential: checked as boolean })}
+                onCheckedChange={(checked) =>
+                  onUpdate({ confidential: checked as boolean })
+                }
               />
               <Label htmlFor="confidential">Mark as confidential</Label>
             </div>
@@ -151,5 +215,5 @@ export function ContractTermsSection({ formData, onUpdate }: ContractTermsSectio
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

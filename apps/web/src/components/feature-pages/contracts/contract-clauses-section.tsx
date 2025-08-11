@@ -1,20 +1,20 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Plus, Trash2, FileText, GripVertical } from "lucide-react"
-import { RichTextEditor } from "./rich-text-editor"
-import type { ContractFormData, ContractClause } from "@/types"
-import { CLAUSE_TEMPLATES } from "@/constants/contract-form"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Plus, Trash2, FileText, GripVertical } from "lucide-react";
+import { RichTextEditor } from "./rich-text-editor";
+import type { ContractFormData, ContractClause } from "@/types";
+import { CLAUSE_TEMPLATES } from "@/constants/contract-form";
 
 interface ContractClausesSectionProps {
   /** Form data */
-  formData: ContractFormData
+  formData: ContractFormData;
   /** Form update handler */
-  onUpdate: (updates: Partial<ContractFormData>) => void
+  onUpdate: (updates: Partial<ContractFormData>) => void;
 }
 
 /**
@@ -22,9 +22,12 @@ interface ContractClausesSectionProps {
  * @param {ContractClausesSectionProps} props - Component props
  * @returns {JSX.Element} Clauses management interface
  */
-export function ContractClausesSection({ formData, onUpdate }: ContractClausesSectionProps) {
-  const [showAddClause, setShowAddClause] = useState(false)
-  const [newClauseTitle, setNewClauseTitle] = useState("")
+export function ContractClausesSection({
+  formData,
+  onUpdate,
+}: ContractClausesSectionProps) {
+  const [showAddClause, setShowAddClause] = useState(false);
+  const [newClauseTitle, setNewClauseTitle] = useState("");
 
   /**
    * Adds a new clause to the contract
@@ -36,48 +39,56 @@ export function ContractClausesSection({ formData, onUpdate }: ContractClausesSe
         title: newClauseTitle.trim(),
         content: "",
         order: formData.clauses.length + 1,
-      }
+      };
 
-      onUpdate({ clauses: [...formData.clauses, newClause] })
-      setNewClauseTitle("")
-      setShowAddClause(false)
+      onUpdate({ clauses: [...formData.clauses, newClause] });
+      setNewClauseTitle("");
+      setShowAddClause(false);
     }
-  }
+  };
 
   /**
    * Removes a clause from the contract
    * @param {string} clauseId - Clause ID to remove
    */
   const handleRemoveClause = (clauseId: string) => {
-    onUpdate({ clauses: formData.clauses.filter((c) => c.id !== clauseId) })
-  }
+    onUpdate({ clauses: formData.clauses.filter((c) => c.id !== clauseId) });
+  };
 
   /**
    * Updates an existing clause
    * @param {string} clauseId - Clause ID to update
    * @param {Partial<ContractClause>} updates - Clause updates
    */
-  const handleUpdateClause = (clauseId: string, updates: Partial<ContractClause>) => {
+  const handleUpdateClause = (
+    clauseId: string,
+    updates: Partial<ContractClause>
+  ) => {
     onUpdate({
-      clauses: formData.clauses.map((c) => (c.id === clauseId ? { ...c, ...updates } : c)),
-    })
-  }
+      clauses: formData.clauses.map((c) =>
+        c.id === clauseId ? { ...c, ...updates } : c
+      ),
+    });
+  };
 
   /**
    * Adds a clause from template
    * @param {string} templateTitle - Template title
    * @param {string} templateContent - Template content
    */
-  const handleAddFromTemplate = (templateTitle: string, templateContent: string) => {
+  const handleAddFromTemplate = (
+    templateTitle: string,
+    templateContent: string
+  ) => {
     const newClause: ContractClause = {
       id: Date.now().toString(),
       title: templateTitle,
       content: templateContent,
       order: formData.clauses.length + 1,
-    }
+    };
 
-    onUpdate({ clauses: [...formData.clauses, newClause] })
-  }
+    onUpdate({ clauses: [...formData.clauses, newClause] });
+  };
 
   return (
     <div className="space-y-6">
@@ -97,8 +108,12 @@ export function ContractClausesSection({ formData, onUpdate }: ContractClausesSe
                     <div className="flex items-center gap-3">
                       <GripVertical className="h-4 w-4 text-muted-foreground cursor-move" />
                       <div>
-                        <CardTitle className="text-base">{clause.title}</CardTitle>
-                        <p className="text-sm text-muted-foreground">Clause {index + 1}</p>
+                        <CardTitle className="text-base">
+                          {clause.title}
+                        </CardTitle>
+                        <p className="text-sm text-muted-foreground">
+                          Clause {index + 1}
+                        </p>
                       </div>
                     </div>
                     <Button
@@ -116,7 +131,9 @@ export function ContractClausesSection({ formData, onUpdate }: ContractClausesSe
                     <Label>Clause Title</Label>
                     <Input
                       value={clause.title}
-                      onChange={(e) => handleUpdateClause(clause.id, { title: e.target.value })}
+                      onChange={(e) =>
+                        handleUpdateClause(clause.id, { title: e.target.value })
+                      }
                       className="mt-1.5 rounded-xl"
                     />
                   </div>
@@ -124,9 +141,11 @@ export function ContractClausesSection({ formData, onUpdate }: ContractClausesSe
                     <Label>Clause Content</Label>
                     <div className="mt-1.5">
                       <RichTextEditor
-                        key={clause.id + ":" + clause.content}
+                        key={clause.id}
                         content={clause.content}
-                        onChange={(content) => handleUpdateClause(clause.id, { content })}
+                        onChange={(content) =>
+                          handleUpdateClause(clause.id, { content })
+                        }
                         placeholder="Enter clause content..."
                         disabled={false}
                       />
@@ -153,18 +172,24 @@ export function ContractClausesSection({ formData, onUpdate }: ContractClausesSe
           {/* Clause Templates */}
           {CLAUSE_TEMPLATES.length > 0 && (
             <div>
-              <h4 className="text-sm font-medium text-muted-foreground mb-3">Quick Add from Templates</h4>
+              <h4 className="text-sm font-medium text-muted-foreground mb-3">
+                Quick Add from Templates
+              </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {CLAUSE_TEMPLATES.map((template) => (
                   <Button
                     key={template.id}
-                    onClick={() => handleAddFromTemplate(template.title, template.content)}
+                    onClick={() =>
+                      handleAddFromTemplate(template.title, template.content)
+                    }
                     variant="outline"
                     className="justify-start h-auto p-4 rounded-xl"
                   >
                     <div className="text-left">
                       <div className="font-medium">{template.title}</div>
-                      <div className="text-xs text-muted-foreground mt-1">{template.description}</div>
+                      <div className="text-xs text-muted-foreground mt-1">
+                        {template.description}
+                      </div>
                     </div>
                   </Button>
                 ))}
@@ -192,13 +217,17 @@ export function ContractClausesSection({ formData, onUpdate }: ContractClausesSe
               />
             </div>
             <div className="flex gap-3">
-              <Button onClick={handleAddClause} disabled={!newClauseTitle.trim()} className="rounded-xl">
+              <Button
+                onClick={handleAddClause}
+                disabled={!newClauseTitle.trim()}
+                className="rounded-xl"
+              >
                 Add Clause
               </Button>
               <Button
                 onClick={() => {
-                  setShowAddClause(false)
-                  setNewClauseTitle("")
+                  setShowAddClause(false);
+                  setNewClauseTitle("");
                 }}
                 variant="outline"
                 className="rounded-xl"
@@ -210,5 +239,5 @@ export function ContractClausesSection({ formData, onUpdate }: ContractClausesSe
         </Card>
       )}
     </div>
-  )
+  );
 }

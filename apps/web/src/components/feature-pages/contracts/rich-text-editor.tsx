@@ -1,31 +1,44 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useEditor, EditorContent } from "@tiptap/react"
-import StarterKit from "@tiptap/starter-kit"
-import { Bold, Italic, List, ListOrdered, Quote, Undo, Redo } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+import { useState, useEffect } from "react";
+import { useEditor, EditorContent } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import {
+  Bold,
+  Italic,
+  List,
+  ListOrdered,
+  Quote,
+  Undo,
+  Redo,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 /**
  * Props for RichTextEditor component
  */
 interface RichTextEditorProps {
-  content: string
-  onChange: (content: string) => void
-  placeholder?: string
-  disabled?: boolean
+  content: string;
+  onChange: (content: string) => void;
+  placeholder?: string;
+  disabled?: boolean;
 }
 
 /**
  * Rich text editor component using TipTap with basic formatting options.
  */
-export function RichTextEditor({ content, onChange, placeholder, disabled }: RichTextEditorProps) {
-  const [isMounted, setIsMounted] = useState(false)
+export function RichTextEditor({
+  content,
+  onChange,
+  placeholder,
+  disabled,
+}: RichTextEditorProps) {
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    setIsMounted(true)
-  }, [])
+    setIsMounted(true);
+  }, []);
 
   const editor = useEditor({
     extensions: [
@@ -50,13 +63,31 @@ export function RichTextEditor({ content, onChange, placeholder, disabled }: Ric
       },
     },
     onUpdate: ({ editor }) => {
-      onChange(editor.getHTML())
+      const html = editor.getHTML();
+      if (html !== content) {
+        onChange(html);
+      }
     },
     autofocus: false,
     immediatelyRender: false,
-  })
+  });
 
-  if (!isMounted || !editor) return null
+  // Sync content when prop changes (but avoid infinite loops)
+  useEffect(() => {
+    if (editor && content !== editor.getHTML()) {
+      // Use the correct TipTap API - setContent with options object
+      editor.commands.setContent(content, { emitUpdate: false });
+    }
+  }, [content, editor]);
+
+  // Handle disabled state changes
+  useEffect(() => {
+    if (editor) {
+      editor.setEditable(!disabled);
+    }
+  }, [disabled, editor]);
+
+  if (!isMounted || !editor) return null;
 
   return (
     <div className="border rounded-2xl overflow-hidden bg-background relative">
@@ -149,5 +180,5 @@ export function RichTextEditor({ content, onChange, placeholder, disabled }: Ric
         )}
       </div>
     </div>
-  )
+  );
 }
